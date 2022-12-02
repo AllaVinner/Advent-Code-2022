@@ -27,18 +27,18 @@ fn result_score(result: i32) -> i32{
     score[result as usize]
 }
 
-fn moves_to_result(p1: i32, p2:i32) -> i32{
-    let m = [[1, 2, 0],
+fn move_and_result_to_move(p1: i32, result:i32) -> i32{
+    let m = [[2, 0, 1],
              [0, 1, 2],
-             [2, 0, 1]];
+             [1, 2, 0]];
     
-    m[p1 as usize][p2   as usize]
+    m[p1 as usize][result  as usize]
 }
 
 fn play(game: &str)-> i32 {
     let p1 = to_int(&game.chars().nth(0).unwrap());
-    let p2 = to_int(&game.chars().nth(2).unwrap());
-    let result = moves_to_result(p1, p2);
+    let result = to_int(&game.chars().nth(2).unwrap());
+    let p2 = move_and_result_to_move(p1, result);
     let ms = move_score(p2);
     let rs = result_score(result);
     ms+rs
