@@ -5,11 +5,19 @@ fn type_of<T>(_: &T) -> &'static str {
 pub fn main(input: &str) -> String {
     let result = input
         .lines()
-        .map(|bag| {
-            get_priority(bag)
+        .map(|elf_pair| {
+            are_overlapping(elf_pair)
         })
         .sum::<i32>();
     result.to_string()
+}
+
+pub fn are_overlapping(line: &str) -> i32 {
+    let mut linesplit = line.split(",");
+    let r1 = linesplit.next().unwrap();
+    let r2 = inesplit.next().unwrap();
+    
+    30
 }
 
 
