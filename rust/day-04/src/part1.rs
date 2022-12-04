@@ -15,32 +15,22 @@ pub fn main(input: &str) -> String {
 pub fn are_overlapping(line: &str) -> i32 {
     let mut linesplit = line.split(",");
     let r1 = linesplit.next().unwrap();
-    let r2 = inesplit.next().unwrap();
-    
-    30
-}
-
-
-
-fn get_priority(bag: &str) -> i32 {
-    let half= bag.len() / 2;
-    let comp1 = &bag[..half];
-    let comp2 = &bag[half..];
-    let mut num: i32 =0;
-    for item1 in comp1.chars() {
-        for item2 in comp2.chars() {
-            if item1 == item2 {
-                num = item1 as i32;
-                if num > 90 {
-                    return num -96;
-                } else {
-                    return num - 65 + 27;
-                };
-            };
-        }
+    let r2 = linesplit.next().unwrap();
+    let mut r1s = r1.split("-");
+    let r11: i32 = r1s.next().unwrap().parse().unwrap();
+    let r12: i32 = r1s.next().unwrap().parse().unwrap();
+    let mut r2s = r2.split("-");
+    let r21: i32 = r2s.next().unwrap().parse().unwrap();
+    let r22: i32 = r2s.next().unwrap().parse().unwrap();
+    if r11 <= r21 && r22 <= r12{
+        return 1;
+    } else if r21 <= r11 && r12 <= r22{
+        return 1;
     }
     return 0;
 }
+
+
 
 
 
