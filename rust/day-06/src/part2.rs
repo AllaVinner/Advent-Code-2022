@@ -14,7 +14,7 @@ pub fn main(input: &str) -> String {
         c = char_iter.next().unwrap();
         window.push_back(c);
         h.entry(c).and_modify(|v| *v += 1).or_insert(1 as i32);
-        if (*h.get(&c).unwrap() == 2) {
+        if *h.get(&c).unwrap() == 2  {
             num_over_one += 1;
         }
     }
@@ -23,15 +23,14 @@ pub fn main(input: &str) -> String {
     while num_over_one != 0 {
         c = window.pop_front().unwrap();
         h.entry(c).and_modify(|v| *v -= 1);
-        if (*h.get(&c).unwrap() == 1) {
+        if *h.get(&c).unwrap() == 1 {
             num_over_one -= 1;
         }
 
         c = char_iter.next().unwrap();
-        window.push_back(c);
-        
+        window.push_back(c); 
         h.entry(c).and_modify(|v| *v += 1).or_insert(1 as i32);
-        if (*h.get(&c).unwrap() == 2) {
+        if *h.get(&c).unwrap() == 2 {
             num_over_one += 1;
         }
         i += 1;
