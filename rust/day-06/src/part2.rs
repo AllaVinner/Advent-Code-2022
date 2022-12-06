@@ -8,7 +8,7 @@ pub fn main(input: &str) -> String {
     let mut char_iter = input.chars();
     let mut num_over_one: i32 = 0;
     let len: usize = 14;
-    let mut c: char;    
+    let mut c: char;  
     
     for _ in 0..len {
         c = char_iter.next().unwrap();
