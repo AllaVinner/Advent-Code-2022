@@ -50,7 +50,7 @@ fn get_command(line: &str) -> CommandType {
     }
 }
 
-fn step_in<'a, I>(dir: &mut Dir, line_iter: &mut I) 
+fn setup_dir<'a, I>(dir: &mut Dir, line_iter: &mut I) 
 where
      I: Iterator<Item = &'a str>,
 {
@@ -60,7 +60,6 @@ where
             Some(l) => l,
             None => "EOF",
         };
-        println!("{:?}", line);
         if line == "EOF" {
             return;
         }
@@ -68,8 +67,8 @@ where
                 CommandType::UP => break,
                 CommandType::CD {dirname: d} => {
                     match dir.content.get_mut(&mut d.to_string()).unwrap_or(&mut ContentType::D(Dir{ content: HashMap::new(), size: 0,})) {
-                        ContentType::F(f) => println!("WHAT"),
-                        ContentType::D(d2) => step_in(d2, line_iter)
+                        ContentType::F(f) => (),
+                        ContentType::D(d2) => setup_dir(d2, line_iter)
                     };
                     0
                 },
@@ -104,13 +103,11 @@ fn calc_size(dir: &mut Dir) -> i32{
 }
 
 fn part1_task(dir: &Dir) -> i32 {
-    println!("IN part1 task");
     let mut sum: i32 = 0;
     if dir.size <= 100000 {
         sum += dir.size;
     }
     for (key, value) in dir.content.iter() {
-        println!("{:?}", key);
         sum += match value {
             ContentType::F(f) => 0 as i32,
             ContentType::D(d2) => part1_task(d2),
@@ -124,8 +121,7 @@ pub fn main(input: &str) -> String {
         size: 0,
         content: HashMap::new()
         };
-    step_in(&mut root, &mut input.lines());
+    setup_dir(&mut root, &mut input.lines());
     let total_sum = calc_size(&mut root);
-    println!("{:?}", root.size);
     part1_task(& root).to_string()
 }
