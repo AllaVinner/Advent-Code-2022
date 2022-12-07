@@ -33,12 +33,3 @@ fn get_priority(bag: &str) -> i32 {
     }
     return 0;
 }
-
-
-
-
-
-
-
-
-

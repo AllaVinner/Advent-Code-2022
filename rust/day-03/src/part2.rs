@@ -9,6 +9,10 @@ pub fn main(input: &str) -> String {
     let mut line1;
     let mut line2;
     let mut line3;
+    
+    let mut c2: char;
+    let mut c2: char;
+    let mut c3: char;
     loop{
         ans = lines.next();
         if ans.is_none() {
@@ -17,9 +21,11 @@ pub fn main(input: &str) -> String {
         line1 = ans.unwrap();
         line2 = lines.next().unwrap();
         line3 = lines.next().unwrap();
-        
-        
-
+        for c in lin1.chars() {
+            while ! in_all {
+                if 
+            }
+        }
     }
     "Heeey".to_string()
 }
