@@ -58,11 +58,8 @@ where
     loop {
         line = match line_iter.next() {
             Some(l) => l,
-            None => "EOF",
+            None => break,
         };
-        if line == "EOF" {
-            return;
-        }
         match get_command(line) {
                 CommandType::UP => break,
                 CommandType::CD {dirname: d} => {
