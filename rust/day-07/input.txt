@@ -1,4 +1,3 @@
-$ cd /
 $ ls
 dir drblq
 133789 fjf

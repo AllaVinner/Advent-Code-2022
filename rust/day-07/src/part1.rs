@@ -32,19 +32,15 @@ struct Dir {
 
 fn get_command(line: &str) -> CommandType {
     if line.starts_with("$ ls") { 
-        println!("Found LS");
         return CommandType::LS;
     }
     if line.starts_with("$ cd ..") {
-        println!("Found CD up");
         return CommandType::UP;
     }
     if line.starts_with("$ cd") {
-        println!("Found CD in");
         return CommandType::CD{dirname: line.split(' ').nth(2).unwrap().to_string()};
     }
     if line.starts_with("dir") {
-        println!("Found dir ");
         return CommandType::DR{name: line.split(' ').nth(1).unwrap().to_string()};
     }
     
@@ -59,34 +55,35 @@ where
      I: Iterator<Item = &'a str>,
 {
     let mut line;
-    for _ in 1..4 {
+    loop {
         line = match line_iter.next() {
             Some(l) => l,
             None => "EOF",
         };
+        println!("{:?}", line);
         if line == "EOF" {
             return;
         }
         match get_command(line) {
-                CommandType::UP => println!("UP"),
+                CommandType::UP => break,
                 CommandType::CD {dirname: d} => {
-                    match dir.content.get_mut(&mut d.to_string()).unwrap() {
+                    match dir.content.get_mut(&mut d.to_string()).unwrap_or(&mut ContentType::D(Dir{ content: HashMap::new(), size: 0,})) {
                         ContentType::F(f) => println!("WHAT"),
                         ContentType::D(d2) => step_in(d2, line_iter)
                     };
-                    println!("CD")
+                    0
                 },
-                CommandType::LS => println!("LS"),
+                CommandType::LS => 0,
                 CommandType::DR {name: n} => {
                     dir.content.insert(n, ContentType::D(Dir{
                         content: HashMap::new(),
                         size: 0,
                     }));
-                    println!("DR")
+                    0
                     },
                 CommandType::FL {name: n, size: s} => {
                     dir.content.insert(n, ContentType::F(File{size: s}));
-                    println!("FL")
+                    0
                 },
             };
         
@@ -94,13 +91,41 @@ where
 
 }
 
+fn calc_size(dir: &mut Dir) -> i32{
+    let mut sum: i32 = 0;
+    for (key, value) in dir.content.iter_mut() {
+        sum += match value {
+            ContentType::F(f) => f.size,
+            ContentType::D(d2) => calc_size(d2),
+        }
+    }
+    dir.size = sum;
+    sum
+}
+
+fn part1_task(dir: &Dir) -> i32 {
+    println!("IN part1 task");
+    let mut sum: i32 = 0;
+    if dir.size <= 100000 {
+        sum += dir.size;
+    }
+    for (key, value) in dir.content.iter() {
+        println!("{:?}", key);
+        sum += match value {
+            ContentType::F(f) => 0 as i32,
+            ContentType::D(d2) => part1_task(d2),
+        }
+    }
+    sum
+}
+
 pub fn main(input: &str) -> String {
     let mut root = Dir{
         size: 0,
         content: HashMap::new()
         };
-    let input1 = "$ ls\ndir drblq\n133789 fjf\n";
-    step_in(&mut root, &mut input1.lines());
-    println!("{:?}", root);
-    "DONE".to_string()
+    step_in(&mut root, &mut input.lines());
+    let total_sum = calc_size(&mut root);
+    println!("{:?}", root.size);
+    part1_task(& root).to_string()
 }
