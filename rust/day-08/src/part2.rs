@@ -4,11 +4,6 @@ fn type_of<T>(_: &T) -> &'static str {
     std::any::type_name::<T>()
 }
 
-
-
-
-
-
 fn read_matrix(input: &str) -> Vec<Vec<i32>> {
     input.lines()
         .map(|line| line.chars()
@@ -17,13 +12,11 @@ fn read_matrix(input: &str) -> Vec<Vec<i32>> {
             ).collect() 
 }
 
-
-
 pub fn main(input: &str) -> String {
     let read_data = read_matrix(input);
     let m = read_data.len();
     let n = read_data[0].len();
-    let heights = Array::from_shape_vec( (m, n), read_data.into_iter().flatten().collect()).unwrap();
+    let heights = Array::from_shape_vec((m, n), read_data.into_iter().flatten().collect()).unwrap();
     
     let mut score = Array2::<i32>::ones((m,n));
     let mut val;
@@ -73,10 +66,9 @@ pub fn main(input: &str) -> String {
                 }
             }
             score[[row, col]] *= counter;
-      
         }
     }
-    
+
     score.iter().max().unwrap().to_string()
 }
 
