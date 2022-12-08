@@ -67,5 +67,3 @@ pub fn main(input: &str) -> String {
     }
     vissible.sum().to_string()
 }
-
-
