@@ -4,11 +4,6 @@ fn type_of<T>(_: &T) -> &'static str {
     std::any::type_name::<T>()
 }
 
-
-
-
-
-
 fn read_matrix(input: &str) -> Vec<Vec<i32>> {
     input.lines()
         .map(|line| line.chars()
@@ -16,7 +11,6 @@ fn read_matrix(input: &str) -> Vec<Vec<i32>> {
              .collect()
             ).collect() 
 }
-
 
 
 pub fn main(input: &str) -> String {
@@ -71,7 +65,6 @@ pub fn main(input: &str) -> String {
             }
         }
     }
-    println!("{:?}", type_of(& vissible));
     vissible.sum().to_string()
 }
 
