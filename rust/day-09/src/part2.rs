@@ -25,9 +25,8 @@ fn move_rope(rope: &mut [[i32; 2]; LEN], direction: &[i32; 2]){
         rope[i][0] = rope[i][0] + dir[0];
         rope[i][1] = rope[i][1] + dir[1];
 
-        // should tail move?
-        dir = [rope[i][0]- rope[i+1][0],
-               rope[i][1]- rope[i+1][1]];
+        dir = [rope[i][0] - rope[i+1][0],
+               rope[i][1] - rope[i+1][1]];
         if dir[0].abs() >= 2  || dir[1].abs() >= 2 {
             normalize(&mut dir);
         } else {
@@ -65,7 +64,6 @@ pub fn main(input: &str) -> String {
             move_rope(&mut rope, &direction);
             visited.insert(rope[LEN-1]);
         }
-        
     }
     
     visited.len().to_string()
