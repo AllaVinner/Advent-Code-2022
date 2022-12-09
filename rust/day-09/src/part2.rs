@@ -2,11 +2,7 @@ use std::collections::HashSet;
 
 const LEN: usize = 10;
 
-fn type_of<T>(_: &T) -> &'static str {
-    std::any::type_name::<T>()
-}
-
-fn normalize(d: &mut [i32; 2] ) {
+fn normalize(d: &mut [i32; 2]) {
     for i in 0..2 {
         if d[i] < -1 {
             d[i] = -1;
@@ -17,7 +13,7 @@ fn normalize(d: &mut [i32; 2] ) {
     }
 }
 
-fn move_rope(rope: &mut [[i32; 2]; LEN], direction: &[i32; 2]){
+fn move_rope(rope: &mut [[i32; 2]; LEN], direction: &[i32; 2]) {
     let mut dir: [i32; 2] = *direction;
 
     for i in 0..(LEN-1) {
@@ -59,8 +55,8 @@ pub fn main(input: &str) -> String {
 
     visited.insert(rope[LEN-1]);
     for line in input.lines() {
-        (direction, num_steps) = get_next_movment( &line);
-        for i in 0..num_steps {
+        (direction, num_steps) = get_next_movment(&line);
+        for _ in 0..num_steps {
             move_rope(&mut rope, &direction);
             visited.insert(rope[LEN-1]);
         }
@@ -68,4 +64,3 @@ pub fn main(input: &str) -> String {
     
     visited.len().to_string()
 }
-
