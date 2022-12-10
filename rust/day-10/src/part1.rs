@@ -1,35 +1,45 @@
 
 
 
-pub fn main(input: &str) {
-    let mut cycles: i32 = 0;
+pub fn main(input: &str) -> String {
+    let mut cycles: i32 = 1;
     let mut registry: i32 = 1;
-    let mut record: Vec<i32>;
+    let mut record: i32 = 0;
     
     let mut tmp_str;
     let mut tmp_iter;
 
     for line in input.lines() {
         if line.starts_with("noop") {
-            println!("In none line: {:?}", line);
-            cycles += 1;
+            if cycles % 40 == 20 {
+                println!("1 on cycle {:?} with regestry {:?}", cycles, registry); 
+                record += cycles*registry;
+            }  
+            cycles += 1; 
             continue;
+        }
+
+        if cycles % 40 == 20 {
+            println!("2 on cycle {:?} with regestry {:?}", cycles, registry);
+            record += cycles*registry;
         }
         cycles += 1;
         tmp_iter = line.split(" ");
         tmp_str = tmp_iter.next().unwrap();
         tmp_str = tmp_iter.next().unwrap();
 
+        if cycles % 40 == 20 {
+            println!("3 on cycle {:?} with regestry {:?}", cycles, registry);
+            record += cycles*registry;
+        }
+        
         registry += tmp_str.parse::<i32>().unwrap();
         cycles += 1;
 
-        if cycles % 20 == 0 {
-            record += cycles*registry;
-        }
-
     }
+    println!("{:?}", cycles);
 
-    record.read_to_string()
+    record.to_string()
 }
 
 
