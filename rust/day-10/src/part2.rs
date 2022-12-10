@@ -1,13 +1,14 @@
 
 fn eval(cycles: i32, regestry: i32) {
+    if cycles % 40 == 0 {
+        println!("n");
+    }
     if (regestry - (cycles % 40)).abs() <= 1 {
         print!("#");
     } else {
         print!(".");
     }     
-    if cycles % 40 == 0 {
-        println!("n");
-    }
+
 }
 
 pub fn main(input: &str) -> String {
