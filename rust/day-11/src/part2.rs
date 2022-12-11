@@ -1,11 +1,3 @@
-use nom::{
-    branch::alt,
-    bytes::complete::tag,
-    character::complete::{
-        self, alpha1, digit1, 
-    }
-};
-
 use std::collections::VecDeque;
 
 #[derive(Debug)]
@@ -16,7 +8,6 @@ struct Monkey {
     true_monkey: usize,
     false_monkey: usize
 }
-
 
 
 fn read_monkey(input: &str) -> Monkey {
@@ -68,16 +59,13 @@ fn test(divisible: i64, item: i64) -> bool {
     item % divisible == 0
 }
 
-fn turn(monkeys: &mut Vec<Monkey>, i: usize){
+fn turn(monkeys: &mut Vec<Monkey>, i: usize, number_base: i64){
     let mut item;
     let mut to_monkey: usize;
     for _ in 0..monkeys[i].items.len() {
         item = monkeys[i].items.pop_front().unwrap();
-        item = item % (9699690);
         item = inspect(& monkeys[i].operation_str, item);
-
-
-
+        item = item % number_base;
         if test(monkeys[i].divisible, item) {
             to_monkey = monkeys[i].true_monkey;
         } else {
@@ -94,19 +82,24 @@ pub fn main(input: &str) -> String {
     let mut monkey_iter = input.split("Monkey");
     let mut monkeys: Vec<Monkey> = Vec::new();
     let mut inspections: Vec<i64> = Vec::new();
+    let mut number_base: i64 = 1;
+    let number_of_rounds = 10_000;
+
+    let mut monkey: Monkey;
     monkey_iter.next().unwrap();
-    for m in monkey_iter {
-        monkeys.push(read_monkey(m));
+    for monkey_str in monkey_iter {
+        monkey = read_monkey(monkey_str);
+        number_base *= monkey.divisible;
         inspections.push(0);
+        monkeys.push(monkey);
     }
-    for _ in 0..10000 {
+
+    for _ in 0..number_of_rounds {
         for i in 0..monkeys.len() {
             inspections[i] += monkeys[i as usize].items.len() as i64;
-            turn(&mut monkeys, i);
+            turn(&mut monkeys, i, number_base);
         }
     }
     inspections.sort();
-    (inspections[inspections.len()-1]* inspections[inspections.len()-2]).to_string()
+    (inspections[inspections.len()-1] * inspections[inspections.len()-2]).to_string()
 }
-
-
