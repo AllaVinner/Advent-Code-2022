@@ -106,11 +106,8 @@ pub fn main(input: &str) -> String {
         }
     }
 
-
-    println!("{:#?}", monkeys);
-    println!("{:#?}", inspections);
-
-    "Done".to_string()
+    inspections.sort();
+    (inspections[inspections.len()-1]*inspections[inspections.len()-2]).to_string()
 }
 
 

@@ -1,6 +1,6 @@
 use std::fs;
 mod part1;
-//mod part2;
+mod part2;
 
 fn main() {
     let file = fs::read_to_string("./input.txt").unwrap().replace("\r", "");
