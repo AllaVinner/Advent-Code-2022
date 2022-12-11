@@ -70,30 +70,11 @@ fn test(divisible: i64, item: i64) -> bool {
 
 fn turn(monkeys: &mut Vec<Monkey>, i: usize){
     let mut item;
-    let mut item2;
     let mut to_monkey: usize;
     for _ in 0..monkeys[i].items.len() {
         item = monkeys[i].items.pop_front().unwrap();
-        //println!("Original item: {:?}", item);
-        //println!("Divisibiliy: {:?}", monkeys[i].divisible);
-
-        item2 = item;
         item = item % (9699690);
-
-        //item = item % monkeys[i].divisible;
-        //println!("Item after modules: {:?}", item);
         item = inspect(& monkeys[i].operation_str, item);
-        //println!("Item after inspection: {:?}", item);
-        
-        //println!("Item2: {:?}", item2);
-        item2 = inspect(& monkeys[i].operation_str, item2);
-        //println!("Item2 after inspection: {:?}", item2);
-        item2 = item2 % monkeys[i].divisible;
-        //println!("Item2 after modules: {:?}", item2);
-
-        //item = item % monkeys[i].divisible;
-
-        //item = item / 3;
 
 
 
@@ -124,11 +105,8 @@ pub fn main(input: &str) -> String {
             turn(&mut monkeys, i);
         }
     }
-    println!("{:#?}", inspections);
     inspections.sort();
-    println!("{:#?}", inspections);
-    println!("{:#?}", inspections[inspections.len()-1] as i64 * inspections[inspections.len()-2] as i64);
-    "Done".to_string()
+    (inspections[inspections.len()-1]* inspections[inspections.len()-2]).to_string()
 }
 
 
