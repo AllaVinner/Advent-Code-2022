@@ -43,18 +43,15 @@ fn get_neighbours(index: &[usize; 2], m: usize, n: usize) -> Vec<[usize; 2]> {
 
 
 pub fn main(input: &str) -> String {
-
     let (start_index, end_index, mut heights) = read_heights(&input);
     let m: usize = heights.nrows();
     let n: usize = heights.ncols();
     let mut distance = Array2::<i32>::zeros((m, n));
     let mut nodes = VecDeque::new();
     let mut current_index;
-    let mut current_height = 0;
-    let mut end_distance: i32 = 0;
+    let mut end_distance: i32;
     let mut neighbours;
-    let current_distance: i32;
-    let mut shortest_path: i32 = m as i32 * n as i32;
+    let mut shortest_distance: i32 = m as i32 * n as i32;
     
     for mi in 0..m {
         for ni in 0..n {
@@ -62,13 +59,15 @@ pub fn main(input: &str) -> String {
                 continue;
             }
             distance = 0*distance;
+            nodes.clear();
             nodes.push_back([mi, ni]);
+            end_distance = -1;
+
             while ! nodes.is_empty() {
                 current_index = nodes.pop_front().unwrap();
-                current_height = heights[current_index];
                 neighbours = get_neighbours(&current_index, m, n);
                 for neighbour in neighbours{
-                    if heights[neighbour] > current_height + 1 {
+                    if heights[neighbour] > heights[current_index] + 1 {
                         continue;
                     }
                     if distance[neighbour] != 0 {
@@ -79,15 +78,17 @@ pub fn main(input: &str) -> String {
                     if neighbour == end_index {
                         end_distance = distance[neighbour]
                     }
-                }
-                
+                }  
             }
-            if end_distance < shortest_path {
-                shortest_path = end_distance;
+            if end_distance == -1 {
+                continue;
+            }
+            if end_distance < shortest_distance {
+                shortest_distance = end_distance;
             }
         }
     }
-    shortest_path.to_string()
+    shortest_distance.to_string()
 }
 
 
