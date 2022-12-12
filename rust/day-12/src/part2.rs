@@ -1,4 +1,4 @@
-use ndarray::{arr2, Array2, Array, Axis, Dim, OwnedRepr, ArrayBase};
+use ndarray::{Array2, Dim, OwnedRepr, ArrayBase};
 use std::collections::VecDeque;
 
 fn read_heights(input: &str) -> ([usize; 2], [usize; 2], ArrayBase<OwnedRepr<i32>, Dim<[usize; 2]>>) {
@@ -43,7 +43,7 @@ fn get_neighbours(index: &[usize; 2], m: usize, n: usize) -> Vec<[usize; 2]> {
 
 
 pub fn main(input: &str) -> String {
-    let (start_index, end_index, mut heights) = read_heights(&input);
+    let (_start_index, end_index, heights) = read_heights(&input);
     let m: usize = heights.nrows();
     let n: usize = heights.ncols();
     let mut distance = Array2::<i32>::zeros((m, n));
