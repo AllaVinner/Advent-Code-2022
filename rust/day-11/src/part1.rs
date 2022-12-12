@@ -90,11 +90,10 @@ fn turn(monkeys: &mut Vec<Monkey>, i: usize){
 }
 
 pub fn main(input: &str) -> String {
-
     let mut monkey_iter = input.split("Monkey");
     let mut monkeys: Vec<Monkey> = Vec::new();
     let mut inspections: Vec<i32> = Vec::new();
-    monkey_iter.next().unwrap();
+    monkey_iter.next();
     for m in monkey_iter {
         monkeys.push(read_monkey(m));
         inspections.push(0);
