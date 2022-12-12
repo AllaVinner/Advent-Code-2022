@@ -54,30 +54,40 @@ pub fn main(input: &str) -> String {
     let mut end_distance: i32 = 0;
     let mut neighbours;
     let current_distance: i32;
+    let mut shortest_path: i32 = m as i32 * n as i32;
     
-    //nodes.push_back(start_index);
-    nodes.push_back(start_index);
-
-    while ! nodes.is_empty() {
-        current_index = nodes.pop_front().unwrap();
-        current_height = heights[current_index];
-        neighbours = get_neighbours(&current_index, m, n);
-        for neighbour in neighbours{
-            if heights[neighbour] > current_height + 1 {
+    for mi in 0..m {
+        for ni in 0..n {
+            if heights[[mi, ni]] != 0 {
                 continue;
             }
-            if distance[neighbour] != 0 {
-                continue
+            distance = 0*distance;
+            nodes.push_back([mi, ni]);
+            while ! nodes.is_empty() {
+                current_index = nodes.pop_front().unwrap();
+                current_height = heights[current_index];
+                neighbours = get_neighbours(&current_index, m, n);
+                for neighbour in neighbours{
+                    if heights[neighbour] > current_height + 1 {
+                        continue;
+                    }
+                    if distance[neighbour] != 0 {
+                        continue
+                    }
+                    distance[neighbour] = distance[current_index] + 1;
+                    nodes.push_back(neighbour);
+                    if neighbour == end_index {
+                        end_distance = distance[neighbour]
+                    }
+                }
+                
             }
-            distance[neighbour] = distance[current_index] + 1;
-            nodes.push_back(neighbour);
-            if neighbour == end_index {
-                end_distance = distance[neighbour]
+            if end_distance < shortest_path {
+                shortest_path = end_distance;
             }
         }
-
     }
-    end_distance.to_string()
+    shortest_path.to_string()
 }
 
 
