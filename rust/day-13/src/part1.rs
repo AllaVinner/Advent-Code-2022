@@ -58,15 +58,16 @@ fn parse_nested_list(input: &str) -> IResult<&str, NestedList> {
 
 
 pub fn main(input: &str) -> String { 
-    let mut i = 0;
-    for line_pair in input.split("\n\n"){
+    let mut sum = 0;
+
+    for (i, line_pair) in input.split("\n\n").enumerate() {
         let (p1, p2) = separated_pair(parse_nested_list, tag("\n"), parse_nested_list)(line_pair).unwrap().1;
         if p1 < p2 {
-            i += 1;
+            sum += i+1;
         }
     }
 
-    i.to_string()
+    sum.to_string()
 }
 
 
