@@ -1,6 +1,7 @@
 
 use nom::IResult;
 use std::ops::Add;
+use std::ops::Sub;
 
 #[derive(Debug)]
 struct Point {
@@ -9,27 +10,30 @@ struct Point {
 }
 
 
-impl Add for Point {
-    type Output = Self;
+impl Add<&Point> for & Point {
+    type Output = Point;
 
-    fn add(self, other: Self) -> Self {
-        Self {
+    fn add(self, other: & Point) -> Point {
+        Point {
             x: self.x + other.x,
             y: self.y + other.y,
         }
     }
 }
 
-impl Add<&Point> for &Point {
-    type Output = Self;
+impl Sub<&Point> for & Point {
+    type Output = Point;
 
-    fn add(self, other: &Self) -> Self {
-        Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
+    fn sub(self, other: & Point) -> Point {
+        Point {
+            x: self.x - other.x,
+            y: self.y - other.y,
         }
     }
 }
+
+
+
 
 
 
@@ -59,6 +63,6 @@ pub fn main(input: &str) -> String {
     let a = Point {x: 1, y: 1};
     let b = Point {x: 1, y: 1};
     let c = &a + &b;
-    println!("{:?}", a + b);
+    println!("{:?}", &a - &b);
     "Done".to_string()
 }
