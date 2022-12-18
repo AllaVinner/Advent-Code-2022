@@ -202,7 +202,7 @@ pub fn main(input: &str) -> String {
         println!("{:?}", i);
     }
     
-    println!("{:?}", cave);
+
     println!("{:?}", drop_stone(&cave, &source));
     
     "Done".to_string()
