@@ -2,11 +2,23 @@
 use nom::IResult;
 use std::ops::Add;
 use std::ops::Sub;
+use ndarray::ArrayBase;
+use ndarray::Dim;
+use ndarray::OwnedRepr;
+use ndarray::Array2;
+
+
+#[derive(Debug, Copy, Clone)]
+struct Point {
+    x: i32,
+    y: i32,
+}
 
 #[derive(Debug)]
-struct Point {
-    x: usize,
-    y: usize,
+enum NextStep {
+    NextPoint(Point),
+    Stuck,
+    Falling,
 }
 
 
@@ -33,36 +45,165 @@ impl Sub<&Point> for & Point {
 }
 
 
+impl PartialEq for Point {
+    fn eq(&self, other: &Self) -> bool {
+        return self.x == other.x && self.y == other.y;
+    }
+}
 
 
 
 
+fn direction(p: &Point) -> Point {
+    let x = if p.x >= 1 {
+       1 
+    } else if p.x <= -1 {
+        -1
+    } else {
+        0
+    };
+    let y = if p.y >= 1 {
+        1 
+     } else if p.y <= -1 {
+         -1
+     } else {
+         0
+     };
+     Point{
+        x : x,
+        y : y
+     }
+}
 
-pub fn main1(input: &str) -> String {
-    let mut points = Vec::<[usize; 2]>::new();
+fn get_range(a: &Point, b: &Point) -> Vec::<Point>{
+    let dir = direction(&(b - a));
+    let mut offset = Point {x:0, y:0};
+    let mut l = Vec::<Point>::new();
+    while(a + &offset != *b) {
+        l.push(a + &offset);
+        offset = &offset + &dir; 
+    }
+    l.push(a + &offset);
+    l
+}
+
+fn parse_cave(input: &str) -> ArrayBase<OwnedRepr<i32>, Dim<[usize; 2]>> {
+    let mut walls: Vec::<Vec::<Point>> = Vec::new();
+    let mut corners: Vec::<Point>;
     let mut iter;
-    let mut x: usize;
-    let mut y: usize;
-    //input.lines().map(|line| line.split(" -> ").map(|pair| pair.split(",").map(|n| a.push(n.parse::<i32>().unwrap()))));
-    
+    let mut x: i32;
+    let mut y: i32;
+    let mut max_x: i32 = 0;
+    let mut max_y: i32 = 0;
+
     for line in input.lines(){
+        corners = Vec::new();
         for (i, pair) in line.split(" -> ").enumerate() {
             iter = pair.split(",");
-            x = iter.next().unwrap().parse::<usize>().unwrap();
-            y = iter.next().unwrap().parse::<usize>().unwrap();
-            
+            x = iter.next().unwrap().parse::<i32>().unwrap();
+            y = iter.next().unwrap().parse::<i32>().unwrap();
+            if x > max_x {
+                max_x = x;
+            }
+            if y > max_y {
+                max_y = y;
+            }
+            corners.push(Point {
+                x: x,
+                y: y,
+            });          
+        }
+        walls.push(corners);
+    }
+
+    let mut cave = Array2::<i32>::zeros((max_y as usize+1, max_x as usize+1));
+    
+    let mut prev_corner = &Point{x:0, y:0};
+    for wall in walls.iter() {
+        for (i, corner) in wall.iter().enumerate() {
+            if i == 0  {
+                prev_corner = corner;
+                continue;
+            }
+            for point in get_range(corner, prev_corner).iter(){
+                cave[[point.y as usize, point.x as usize]] = 1;
+            };
+            prev_corner = corner;
         }
     }
-    
-    "Done".to_string()
+    cave
+}
+
+fn get_next_pos(cave: &ArrayBase<OwnedRepr<i32>, Dim<[usize; 2]>>, current: &Point) -> NextStep {
+    let mut next_point = *current;
+    next_point.y = next_point.y + 1;
+    match cave.get((next_point.y as usize, next_point.x as usize)) {
+        None => return NextStep::Falling,
+        Some(i) => {
+            if *i == 0 as i32{
+                return NextStep::NextPoint(next_point);
+            };
+        },
+    };
+    next_point.x = next_point.x - 1;
+    match cave.get((next_point.y as usize, next_point.x as usize)) {
+        None => return NextStep::Falling,
+        Some(i) => {
+            if *i == 0 as i32{
+                return NextStep::NextPoint(next_point);
+            };
+        },
+    };
+
+    next_point.x = next_point.x + 2;
+    match cave.get((next_point.y as usize, next_point.x as usize)) {
+        None => return NextStep::Falling,
+        Some(i) => {
+            if *i == 0 as i32{
+                return NextStep::NextPoint(next_point);
+            };
+        },
+    };
+
+
+    return NextStep::Stuck;
+}
+
+
+fn drop_stone(cave: &ArrayBase<OwnedRepr<i32>, Dim<[usize; 2]>>, source: &Point) -> Option<Point> {
+    match cave.get((source.y as usize, source.x as usize)) {
+        Some(i) => if *i == 1 {
+            panic!("Source is full!");
+        },
+        None => panic!("Source Is outside of matrx!"), 
+    }
+    let mut current = *source;
+    loop {
+        match get_next_pos(cave, &current) {
+            NextStep::NextPoint(p) => current = p,
+            NextStep::Stuck => return Some(current),
+            NextStep::Falling => return None,  
+        }  
+    }
 }
 
 
 
 pub fn main(input: &str) -> String {
-    let a = Point {x: 1, y: 1};
-    let b = Point {x: 1, y: 1};
-    let c = &a + &b;
-    println!("{:?}", &a - &b);
+    let mut cave = parse_cave(input);
+    let source = Point{x:500, y:0};
+    let mut i = 0;
+    loop {
+        match drop_stone(&cave, &source) {
+            Some(p) => cave[[p.y as usize, p.x as usize]] = 1,
+            None => break,
+        }
+        i += 1;
+        println!("{:?}", i);
+    }
+    
+    println!("{:?}", cave);
+    println!("{:?}", drop_stone(&cave, &source));
+    
     "Done".to_string()
 }
