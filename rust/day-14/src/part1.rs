@@ -192,18 +192,13 @@ fn drop_stone(cave: &ArrayBase<OwnedRepr<i32>, Dim<[usize; 2]>>, source: &Point)
 pub fn main(input: &str) -> String {
     let mut cave = parse_cave(input);
     let source = Point{x:500, y:0};
-    let mut i = 0;
+    let mut stones = 0;
     loop {
         match drop_stone(&cave, &source) {
             Some(p) => cave[[p.y as usize, p.x as usize]] = 1,
             None => break,
         }
-        i += 1;
-        println!("{:?}", i);
+        stones += 1;
     }
-    
-
-    println!("{:?}", drop_stone(&cave, &source));
-    
-    "Done".to_string()
+    stones.to_string()
 }

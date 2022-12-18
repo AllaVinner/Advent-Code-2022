@@ -207,7 +207,6 @@ pub fn main(input: &str) -> String {
     let mut cave = parse_cave(input);
     let source = Point{x:500, y:0};
     let mut stones = 0;
-    println!("Shape {:?}", cave.shape());
     loop {
         match drop_stone(&cave, &source) {
             Some(p) => cave[[p.y as usize, p.x as usize]] = 1,
@@ -216,5 +215,5 @@ pub fn main(input: &str) -> String {
         stones += 1;
     }
 
-    "Done".to_string()
+    stones.to_string()
 }
