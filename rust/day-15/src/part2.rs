@@ -113,28 +113,5 @@ pub fn main(input: &str) -> String {
         } 
     }
     let point = surrounding.pop().unwrap();
-    println!("{:?}", point);
     (4_000_000*(point.x as i64) +point.y as i64).to_string()
 }
-
-
-/*
-pub fn main1(input: &str) -> String {
-    let (mut sensors, mut beacons) = parse_sensors_and_beacons(input); 
-    for sensor in sensors.iter() {
-        surrounding = get_surrounding(&sensor);
-        surrounding = filter_outside_box(&surrounding);
-        surrounding = filter_not_reached(surrounding, sensors);
-        if surrounding.len() == 1 {
-            break;
-        } 
-        if surrounding.len() > 1 {
-            panic!("More than one free?")
-        } 
-        
-    }   
-    counter.to_string()
-}
-
-*/
-
