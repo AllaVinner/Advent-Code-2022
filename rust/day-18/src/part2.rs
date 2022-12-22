@@ -41,7 +41,7 @@ fn get_reach(start: [usize; 3], grid: & ArrayBase<OwnedRepr<i32>, Dim<[usize; 3]
     let mut index;
     reach[start] = 1;
     index_stack.push(start);
-    while(!index_stack.is_empty()) {
+    while !index_stack.is_empty() {
         index = index_stack.pop().unwrap();
         for n in get_neighbours(index, grid.shape().try_into().unwrap()) {
             if grid[n] == 1 {

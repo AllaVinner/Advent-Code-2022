@@ -1,6 +1,3 @@
-use ndarray::ArrayBase;
-use ndarray::Dim;
-use ndarray::OwnedRepr;
 use ndarray::Array3;
 
 
