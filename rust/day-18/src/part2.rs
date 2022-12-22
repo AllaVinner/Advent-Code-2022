@@ -34,7 +34,7 @@ fn get_neighbours(index: [usize; 3], shape: [usize; 3]) -> Vec::<[usize; 3]> {
     vec
 }
 
-fn get_reach(start: [usize; 3], grid: &mut ArrayBase<OwnedRepr<i32>, Dim<[usize; 3]>>) -> ArrayBase<OwnedRepr<i32>, Dim<[usize; 3]>> {
+fn get_reach(start: [usize; 3], grid: & ArrayBase<OwnedRepr<i32>, Dim<[usize; 3]>>) -> ArrayBase<OwnedRepr<i32>, Dim<[usize; 3]>> {
     let shape: [usize;3]= grid.shape().try_into().unwrap();
     let mut reach = Array3::<i32>::zeros(shape);
     let mut index_stack = Vec::<[usize; 3]>::new();
@@ -80,10 +80,9 @@ fn count_sides(reach: &ArrayBase<OwnedRepr<i32>, Dim<[usize; 3]>>, grid: &ArrayB
 
 
 pub fn main(input: &str) -> String {
-    let shape = [25, 25, 25];
-    let mut droplet = parse_droplet(input);
+    let droplet = parse_droplet(input);
     let start = [0,0,0];    
-    let reach = get_reach(start, &mut droplet);
+    let reach = get_reach(start, &droplet);
     let sides = count_sides(&reach, &droplet);
     sides.to_string()
 }
