@@ -29,7 +29,7 @@ fn get_neighbours(index: [usize; 3], shape: [usize; 3]) -> Vec::<[usize; 3]> {
         }
     }
     vec
-    }
+}
 
 
 
