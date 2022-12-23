@@ -13,7 +13,7 @@ pub fn main(input: &str) -> String {
         pos = mixed.iter().position(|vv| *vv == v).unwrap() as i32;
         mixed.remove(pos as usize);
         if pos+v >= -10 {
-            mixed.insert((((pos+v-1).rem_euclid(len-1))) as usize, v);
+            mixed.insert((((pos+v-1).rem_euclid(len))) as usize, v);
            
         } else {
             mixed.insert((((pos+v).rem_euclid(len))-1) as usize, v);
