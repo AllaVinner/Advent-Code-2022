@@ -1,4 +1,4 @@
-
+use core::cmp::max;
 use std::ops::{Add, Sub};
 use std::ops::Mul;
 
@@ -39,16 +39,21 @@ impl PartialEq for Point {
     }
 }
 
+fn len(p: &Point) -> i32 {
+    max(p.x.abs(), p.y.abs())
+}
 
 fn parse_input_to_point_vec(input: &str) -> Vec<Point> {
+    let mut x: i32 = 0;
+    let mut y: i32 = 1;
     input.chars().filter_map(|c| match c {
         '#' => {
             x += 1;
             Some(Point{x:x, y:y})
         },
         '.' => {
-           x += 1;
-           None
+            x += 1;
+            None
         },
         '\n' => {
             y += 1;
@@ -56,18 +61,30 @@ fn parse_input_to_point_vec(input: &str) -> Vec<Point> {
             None
         },
         _ => panic!(""),
-    }).collect::<Vec<Point>>();
+    }).collect::<Vec<Point>>()
+}
+
+fn is_neightbours(a: &Point, b: &Point) -> bool {
+    len(&(a-b)) <= 1
+}
+
+fn get_neightbours(index: usize, agents: &Vec<Point>) -> Vec<usize> {
+    agents.iter().enumerate().filter_map(|(i, p)| {
+        if i == index {
+            return None;
+        }
+        if is_neightbours(agents.get(index).unwrap(), agents.get(i).unwrap()) {
+            return Some(i)
+        }
+        return None
+    }).collect()
 }
 
 
-
 pub fn main(input: &str) -> String {
-    let mut x = 0;
-    let mut y = 1;
     let mut agents = parse_input_to_point_vec(input);
     
-    dbg!(a);
-    println!("{:?}", x);
+    println!("{:?}", get_neightbours(0, &agents));
     "Done".to_string()
 }
 
