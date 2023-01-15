@@ -1,7 +1,7 @@
 use core::cmp::max;
 use std::ops::{Add, Sub};
 use std::ops::Mul;
-
+use std::collections::VecDeque;
 
 #[derive(Debug, Copy, Clone)]
 struct Point {
@@ -37,6 +37,13 @@ impl PartialEq for Point {
     fn eq(&self, other: &Self) -> bool {
         return self.x == other.x && self.y == other.y;
     }
+}
+
+enum Directions {
+    North,
+    South,
+    West,
+    East
 }
 
 fn len(p: &Point) -> i32 {
@@ -80,11 +87,37 @@ fn get_neightbours(index: usize, agents: &Vec<Point>) -> Vec<usize> {
     }).collect()
 }
 
+fn is_direction_free(index: usize, direction: Directions, agents: &Vec<Point>) -> bool {
+    let a = agents.get(index).unwrap();
+    let points: Vec<Point> = match direction {
+        Directions::North => vec![Point{x:-1,y:-1},Point{x:0,y:-1},Point{x:1,y:-1}],
+        Directions::South => vec![Point{x:-1,y:1},Point{x:0,y:1},Point{x:1,y:1}],
+        Directions::West => vec![Point{x:-1,y:-1},Point{x:-1,y:0},Point{x:-1,y:1}],
+        Directions::East => vec![Point{x:1,y:-1},Point{x:1,y:0},Point{x:1,y:1}]
+    }
+    agents.iter().filter(|a1| points.find(|p| &(a+p)==*a1)).len() == 0
+}
+
+fn get_proposal(index: usize, directions: VecDeque<Directions>, agents: &Vec<Point>) -> Optiona(Point) {
+    let neightbours = get_neightbours(index, agents);
+    if len(neightbours) == 0{
+        return None;
+    }
+    for direction in directions {
+        if is_direction_free(index, direction, agents) {
+            //return Some(agents.get(index).unwrap() + direction);
+            return None
+        }
+    }
+    None
+}
+
 
 pub fn main(input: &str) -> String {
     let mut agents = parse_input_to_point_vec(input);
-    
+
     println!("{:?}", get_neightbours(0, &agents));
+    println!("{:?}", is_direction_free(0, Directions::North, &agents));
     "Done".to_string()
 }
 
