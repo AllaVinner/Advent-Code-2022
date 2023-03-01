@@ -1,4 +1,5 @@
 
+type score = u32;
 enum Move {
     Rock,
     Paper,
@@ -11,7 +12,7 @@ enum Outcome {
     Loss
 }
 
-fn round(my_move: &Move, other_move: &Move) -> u32 {
+fn round(my_move: &Move, other_move: &Move) -> score {
     let outcome = play(my_move, other_move);
     return round_score(my_move, &   outcome);
 }
@@ -31,14 +32,14 @@ fn play(my_move: &Move, other_move: &Move) -> Outcome {
 }
 
 
-fn round_score(my_move: &Move, outcome: &Outcome) -> u32 {
-    let move_score: u32 = match my_move {
+fn round_score(my_move: &Move, outcome: &Outcome) -> score {
+    let move_score: score = match my_move {
         Move::Rock => 1,
         Move::Paper => 2,
         Move::Scissor => 3
     };
 
-    let outcome_score: u32 = match outcome {
+    let outcome_score: score = match outcome {
         Outcome::Loss => 0,
         Outcome::Draw => 3,
         Outcome::Win => 6
@@ -68,7 +69,7 @@ pub fn task1(input: &str) -> String {
     input.lines()
         .map(|line| parse_line(line))
         .map(|(m1, m2)| round(&m2, &m1))
-        .sum::<u32>()
+        .sum::<score>()
         .to_string()
 }
 
