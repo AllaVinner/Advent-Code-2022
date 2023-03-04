@@ -1,3 +1,4 @@
+use iterchunks::IterArrayChunks;
 
 fn parse_char(c: char) -> u32{
     let ascii_num = c as u32;
@@ -20,7 +21,7 @@ pub fn task1(input: &str) -> String {
         .to_string()
 }
 
-//https://stackoverflow.com/questions/42134874/are-there-equivalents-to-slicechunks-windows-for-iterators-to-loop-over-pairs
+
 pub fn task2(input: &str) -> String {
     input.lines()
         .array_chunks::<3>()
