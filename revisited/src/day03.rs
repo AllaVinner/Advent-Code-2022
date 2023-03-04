@@ -20,10 +20,14 @@ pub fn task1(input: &str) -> String {
         .to_string()
 }
 
-
+//https://stackoverflow.com/questions/42134874/are-there-equivalents-to-slicechunks-windows-for-iterators-to-loop-over-pairs
 pub fn task2(input: &str) -> String {
-    
-    "asdf".to_string()
+    input.lines()
+        .array_chunks::<3>()
+        .map(|[a,b,c]| a.chars().find(|c1| b.find(*c1).is_some() && c.find(*c1).is_some()).unwrap())
+        .map(|c| parse_char(c))
+        .sum::<u32>()
+        .to_string()
 }
 
 
