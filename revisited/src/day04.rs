@@ -12,9 +12,17 @@ struct Range {
     end: u32
 }
 
-fn are_overlaping(range1: &Range, range2: &Range) -> bool {
+fn contained(range1: &Range, range2: &Range) -> bool {
     (range2.start <= range1.start && range1.end <= range2.end) || 
        (range1.start <= range2.start && range2.end <= range1.end)
+}
+
+
+fn are_overlaping(range1: &Range, range2: &Range) -> bool {
+    (range2.start <= range1.start && range1.start <= range2.end) ||
+    (range2.start <= range1.end && range1.end <= range2.end) ||
+    (range1.start <= range2.start && range2.start <= range1.end) ||
+    (range1.start <= range2.end && range2.end <= range1.end)
 }
 
 fn parse_input(line: &str) -> (Range, Range) {
@@ -32,13 +40,16 @@ fn parse_input(line: &str) -> (Range, Range) {
 pub fn task1(input: &str) -> String {
     input.lines()
         .map(|line| parse_input(line))
-        .filter(|(r1, r2)| are_overlaping(r1, r2))
+        .filter(|(r1, r2)| contained(r1, r2))
         .count()
         .to_string()
 }
 
 
 pub fn task2(input: &str) -> String {
-    "ASD".to_string()
+    input.lines()
+        .map(|line| parse_input(line))
+        .filter(|(r1, r2)| are_overlaping(r1, r2))
+        .count()
+        .to_string()
 }
-
