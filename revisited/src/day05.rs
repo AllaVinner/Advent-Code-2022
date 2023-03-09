@@ -4,6 +4,8 @@ struct CargoIter<'a> {
     iter: Chars<'a>
 }
 
+
+
 impl<'a> Iterator for CargoIter<'a> {
     type Item = char;
 
@@ -11,7 +13,7 @@ impl<'a> Iterator for CargoIter<'a> {
         self.iter.next();
         self.iter.next();
         self.iter.next();
-        self.iter.next()
+        self.iter.next()    
     }
 }
 
@@ -28,6 +30,13 @@ impl CargoIterator for &str {
 struct Cargo {
     cargo: HashMap<char, Vec<char>>
 }
+
+fn init_parser(input: &str) {
+    let mut cargo: HashMap< > =input.lines().rev().next().unwrap()
+        .chars().enumerate().filter(|(i, c)| *c != ' ')
+        .map(|(i, c)| ).collect()
+}
+
 
 pub fn task1(input: &str) -> String {
     let (init_input, change_input) = input.split_once("\n\n").unwrap();
