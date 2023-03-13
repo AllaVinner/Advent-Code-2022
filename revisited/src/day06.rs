@@ -2,6 +2,7 @@
 use std::ops::Add;
 use itertools::Itertools;
 
+
 pub fn task1(input: &str) -> String {
     input.chars()
         .tuple_windows()
