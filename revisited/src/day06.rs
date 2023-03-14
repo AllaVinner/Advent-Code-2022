@@ -24,14 +24,16 @@ pub fn task2(input: &str) -> String {
         .skip(14)
         .enumerate()
         .scan(input.chars().take(14).collect::<VecDeque<char>>(),|state, (i, c)| {
-            state.pop_back();
-            if state.contains(&c) {
+            state.pop_front();
+            state.push_back(c);
+            if state.iter().enumerate().find(|(i, &c)| state.iter().skip(*i).find(|&c2| *c2==c).is_some()).is_some() {
                 return Some(i);
             } else {
-                state.push_front(c);
                 return None;
             };
         })
-        .sum::<usize>()
+        .last()
+        .unwrap()
+        .add(4)
         .to_string()
 }
