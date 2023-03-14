@@ -26,14 +26,15 @@ pub fn task2(input: &str) -> String {
         .scan(input.chars().take(14).collect::<VecDeque<char>>(),|state, (i, c)| {
             state.pop_front();
             state.push_back(c);
-            if state.iter().enumerate().find(|(i, &c)| state.iter().skip(*i).find(|&c2| *c2==c).is_some()).is_some() {
+            if state.iter().enumerate().find(|(i, &c)| state.iter().skip(*i+1).find(|&c2| *c2==c).is_some()).is_some() {
                 return Some(i);
             } else {
+                println!("{:?}", &state);
                 return None;
             };
         })
         .last()
         .unwrap()
-        .add(4)
+        .add(16)
         .to_string()
 }
