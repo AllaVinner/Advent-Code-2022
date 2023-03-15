@@ -1,5 +1,8 @@
+use ndarray::{Array2, Array3};
 
-type time = usize;
+type ReachMap = Array2<Reached>;
+type BlizzardWorld = Array3<bool>;
+type Time = usize;
 
 enum Move {
     UP,
@@ -17,7 +20,7 @@ struct Pos {
 
 enum Reached {
     NotReached,
-    Initial(time),
+    Initial(Time),
     ReachedFrom(Pos)
 }
 
