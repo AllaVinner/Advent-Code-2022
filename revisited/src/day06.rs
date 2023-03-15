@@ -3,9 +3,14 @@ use std::ops::Add;
 use itertools::Itertools;
 use std::collections::VecDeque;
 
+const N: usize = 14;
 struct Message {
-    
+    registry: [usize; N],
+    occupied: [usize; 128],
+    start_index: usize
 }
+
+
 
 pub fn task1(input: &str) -> String {
     input.chars()
