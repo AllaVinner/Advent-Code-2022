@@ -33,14 +33,12 @@ enum Origin {
 fn parse_input(input: &str) {
     let width = input.lines().nth(0).unwrap().chars().count() - 2;
     let height = input.lines().count() - 2;
-    let initial_state = Array2::
 }
 
 
 
 pub fn task1(input: &str) -> String {
-    let width = input.lines().nth(0).unwrap().chars().count() - 2;
-    let height = input.lines().count() - 2;
+    
 
     println!("{:?}", width);
     println!("{:?}", height);
