@@ -42,14 +42,49 @@ pub fn task1(input: &str) -> String {
 
     println!("{:?}", width);
     println!("{:?}", height);
-    // Read in Blizzard World
-    // Initiate Origin Stack
-
-    // from each origin, find all possible reaches (That are none taken), populate the next origin bucket.
-    // If target reached, stop.
-
-    // Calculate path
     
+    // For each origin
+    // Init path with origin
+    // while true
+    // get next move,
+    // 
+    // Options
+    // i) If no-more next move, Remove top, Set iterator to top+1
+    // ii) It is an invalid path -> discard move, continue
+    // iii) Is valid and destination reached ....
+    // iv) Period time is reached ...
+    // i) It is a valid path -> add move, reset move iterator, Continue
+
+
+    for origin in origins {
+        path = Path::new(origin);
+        moves.reset();
+
+        while (true) {
+            move = moves.next();
+            if move.is_none() {
+                last_move = path.pop();
+                if path.is_exhausted() {
+                    break;
+                }
+                moves.set(last_move);
+                continue;
+            }
+            path.add(move.unwrap());
+            is_blizzard = World.get(path.pos());
+            if is_blizzard.is_none() {
+                path.pop();
+                continue;
+            }
+
+            
+
+        }
+
+    }
+    
+
+
     "AAA".to_string()
 
 }
