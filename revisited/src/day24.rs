@@ -1,4 +1,5 @@
 use ndarray::{Array2, Array3};
+use num::integer::lcm;
 
 type OriginMap = Array2<Option<Origin>>;
 type OriginStack = Vec<Origin>;
@@ -54,13 +55,15 @@ fn parse_input(input: &str) -> Array2<Move>{
     blizzards
 }
 
-#fn build_blizzard_world()
+//fn build_blizzard_world()
 
 
 
 pub fn task1(input: &str) -> String {
     let a = parse_input(input);
-    println!("{:?}", a);
+    println!("{:?}", a.dim());
+    println!("{:?}", lcm(a.dim().0, a.dim().1));
+    
 
     // For each origin
     // Init path with origin
