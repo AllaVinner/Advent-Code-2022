@@ -5,6 +5,7 @@ type OriginStack = Vec<Origin>;
 type BlizzardWorld = Array3<bool>;
 type Time = usize;
 
+#[derive(Debug, Clone)]
 enum Move {
     UP,
     DOWN,
@@ -30,19 +31,35 @@ enum Origin {
     From(Pos)
 }
 
-fn parse_input(input: &str) {
+fn parse_input(input: &str) -> Array2<Move>{
     let width = input.lines().nth(0).unwrap().chars().count() - 2;
     let height = input.lines().count() - 2;
+
+    let mut blizzards= Array2::from_elem([height, width], Move::WAIT);
+    for (row, line) in input.lines().skip(1).enumerate() {
+        if row == height {
+            break;
+        }
+        for (col, c) in line.chars().skip(1).enumerate(){
+            blizzards[[row, col]] = match c {
+                '<' => Move::LEFT,
+                '^' => Move::UP,
+                '>' => Move::RIGHT,
+                'v' => Move::DOWN,
+                '.' => Move::WAIT,
+                _ => continue, 
+            };
+        }
+    }
+    blizzards
 }
 
 
 
 pub fn task1(input: &str) -> String {
-    
+    let a = parse_input(input);
+    println!("{:?}", a);
 
-    println!("{:?}", width);
-    println!("{:?}", height);
-    
     // For each origin
     // Init path with origin
     // while true
@@ -55,13 +72,14 @@ pub fn task1(input: &str) -> String {
     // iv) Period time is reached ...
     // i) It is a valid path -> add move, reset move iterator, Continue
 
-
+    /*
     for origin in origins {
         path = Path::new(origin);
         moves.reset();
 
-        while (true) {
+        loop {
             move = moves.next();
+            
             if move.is_none() {
                 last_move = path.pop();
                 if path.is_exhausted() {
@@ -70,23 +88,37 @@ pub fn task1(input: &str) -> String {
                 moves.set(last_move);
                 continue;
             }
+
             path.add(move.unwrap());
+
             is_blizzard = World.get(path.pos());
-            if is_blizzard.is_none() {
+            if is_blizzard.is_none()  || is_blizzard.unwrap() {
+                path.pop();
+                continue;
+            }
+            if is_goal(path.pos()) {
+                path.pop()
+                // Some more things
+                continue;
+            }
+
+            if (path.length() == period) {
+                reach_map.add(path.pos())
                 path.pop();
                 continue;
             }
 
-            
+            move.reset();
 
         }
 
     }
     
+     */
+
 
 
     "AAA".to_string()
-
 }
 
 
