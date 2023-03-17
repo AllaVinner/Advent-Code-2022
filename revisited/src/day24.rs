@@ -6,7 +6,7 @@ type OriginStack = Vec<Origin>;
 type BlizzardWorld = Array3<bool>;
 type Time = usize;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 enum Move {
     UP,
     DOWN,
@@ -55,11 +55,26 @@ fn parse_input(input: &str) -> Array2<Move>{
     blizzards
 }
 
-//fn build_blizzard_world()
+
 fn create_world(initial_world: Array2<Move>, num_time_steps: usize) -> Array3<bool> {
     let mut world = Array3::from_elem((num_time_steps, initial_world.dim().0, initial_world.dim().1), false);
-    for time_i in 1..num_time_steps {
-
+    for row in 0..initial_world.dim().0 {
+        for col in 0..initial_world.dim().1 {
+            let direction = &initial_world[[row, col]];
+            if direction == &Move::WAIT {
+                continue;
+            }
+            for time in 0..num_time_steps {
+                let (r, c) = match direction {
+                    Move::DOWN => ((row+time) % num_time_steps, col),
+                    Move::RIGHT =>  (row, (col+time % num_time_steps)),
+                    Move::UP => ((row+num_time_steps-time) % num_time_steps, col),
+                    Move::LEFT =>  (row, (col+num_time_steps-time % num_time_steps)),
+                    Move::WAIT => continue
+                };
+                world[[time, r,c]] = true;
+            }
+        }
     }
     world
 }
