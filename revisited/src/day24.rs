@@ -56,13 +56,21 @@ fn parse_input(input: &str) -> Array2<Move>{
 }
 
 //fn build_blizzard_world()
+fn create_world(initial_world: Array2<Move>, num_time_steps: usize) -> Array3<bool> {
+    let mut world = Array3::from_elem((num_time_steps, initial_world.dim().0, initial_world.dim().1), false);
+    for time_i in 1..num_time_steps {
 
+    }
+    world
+}
 
 
 pub fn task1(input: &str) -> String {
-    let a = parse_input(input);
-    println!("{:?}", a.dim());
-    println!("{:?}", lcm(a.dim().0, a.dim().1));
+    let initial_world = parse_input(input);
+    let period = lcm(initial_world.dim().0, initial_world.dim().1);
+
+    println!("{:?}", initial_world.dim());
+    println!("{:?}", lcm(initial_world.dim().0, initial_world.dim().1));
     
 
     // For each origin
