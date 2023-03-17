@@ -54,6 +54,8 @@ fn parse_input(input: &str) -> Array2<Move>{
     blizzards
 }
 
+#fn build_blizzard_world()
+
 
 
 pub fn task1(input: &str) -> String {
