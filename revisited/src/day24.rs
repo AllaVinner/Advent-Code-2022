@@ -67,9 +67,9 @@ fn create_world(initial_world: Array2<Move>, num_time_steps: usize) -> Array3<bo
             for time in 0..num_time_steps {
                 let (r, c) = match direction {
                     Move::DOWN => ((row+time) % num_time_steps, col),
-                    Move::RIGHT =>  (row, (col+time % num_time_steps)),
+                    Move::RIGHT =>  (row, (col+time) % num_time_steps),
                     Move::UP => ((row+num_time_steps-time) % num_time_steps, col),
-                    Move::LEFT =>  (row, (col+num_time_steps-time % num_time_steps)),
+                    Move::LEFT =>  (row, (col+num_time_steps-time) % num_time_steps),
                     Move::WAIT => continue
                 };
                 world[[time, r,c]] = true;
@@ -87,7 +87,8 @@ pub fn task1(input: &str) -> String {
     println!("{:?}", initial_world.dim());
     println!("{:?}", lcm(initial_world.dim().0, initial_world.dim().1));
     
-
+    let w = create_world(initial_world, period);
+    println!( "{:?}", w);
     // For each origin
     // Init path with origin
     // while true
