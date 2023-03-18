@@ -6,6 +6,11 @@ type OriginStack = Vec<Origin>;
 type BlizzardWorld = Array3<bool>;
 type Time = usize;
 
+fn update(path: &mut Path, world: &Array3<bool>) {
+    // Current path is valid ...
+    // i) Try and extend path
+}
+
 #[derive(Debug, Clone, PartialEq)]
 enum Move {
     UP,
@@ -15,6 +20,7 @@ enum Move {
     WAIT
 }
 
+#[derive(Debug, Clone, PartialEq)]
 struct Path {
     moves: Vec<Move>,
     origin: Origin,
@@ -92,16 +98,26 @@ fn get_initial_origins(world: &Array3<bool>) -> Vec<Origin> {
     origins
 }
 
+fn initialize_path(origin: Origin) -> Path {
+    let mut pos = match origin {
+        Origin::Initial(t) => Pos {x: 0, y: 0},
+        Origin::From(p) => p
+    };
+    Path {moves: Vec::<Move>::new(), origin, pos}
+}
+
 pub fn task1(input: &str) -> String {
     let initial_world = parse_input(input);
     let period = lcm(initial_world.dim().0, initial_world.dim().1);
 
     let w = create_world(initial_world, period);
 
-    let mut origins = get_initial_origins(&w);
+    let origins = get_initial_origins(&w);
 
-    
-    println!("{:?}", origins.len());
+    for origin in origins.into_iter() {
+        println!("Origi {:?}", initialize_path(origin));
+    }
+
     // For each origin
     // Init path with origin
     // while true
