@@ -21,12 +21,13 @@ struct Path {
     pos: Pos
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 struct Pos {
     x: usize,
     y: usize
 }
 
+#[derive(Debug, PartialEq, Clone)]
 enum Origin {
     Initial(Time),
     From(Pos)
@@ -66,10 +67,10 @@ fn create_world(initial_world: Array2<Move>, num_time_steps: usize) -> Array3<bo
             }
             for time in 0..num_time_steps {
                 let (r, c) = match direction {
-                    Move::DOWN => ((row+time) % num_time_steps, col),
-                    Move::RIGHT =>  (row, (col+time) % num_time_steps),
-                    Move::UP => ((row+num_time_steps-time) % num_time_steps, col),
-                    Move::LEFT =>  (row, (col+num_time_steps-time) % num_time_steps),
+                    Move::DOWN => ((row+time) % initial_world.dim().0, col),
+                    Move::RIGHT =>  (row, (col+time) % initial_world.dim().1),
+                    Move::UP => ((row+num_time_steps-time) % initial_world.dim().0, col),
+                    Move::LEFT =>  (row, (col+num_time_steps-time) % initial_world.dim().1),
                     Move::WAIT => continue
                 };
                 world[[time, r,c]] = true;
@@ -79,16 +80,28 @@ fn create_world(initial_world: Array2<Move>, num_time_steps: usize) -> Array3<bo
     world
 }
 
+fn get_initial_origins(world: &Array3<bool>) -> Vec<Origin> {
+    let (period, _, _) = world.dim();
+    let mut origins = Vec::new();
+    for t in 0..period {
+        if world[[t, 0, 0]] {
+            continue;
+        }
+        origins.push(Origin::Initial(t));
+    }
+    origins
+}
 
 pub fn task1(input: &str) -> String {
     let initial_world = parse_input(input);
     let period = lcm(initial_world.dim().0, initial_world.dim().1);
 
-    println!("{:?}", initial_world.dim());
-    println!("{:?}", lcm(initial_world.dim().0, initial_world.dim().1));
-    
     let w = create_world(initial_world, period);
-    println!( "{:?}", w);
+
+    let mut origins = get_initial_origins(&w);
+
+    
+    println!("{:?}", origins.len());
     // For each origin
     // Init path with origin
     // while true
