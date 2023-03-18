@@ -6,9 +6,34 @@ type OriginStack = Vec<Origin>;
 type BlizzardWorld = Array3<bool>;
 type Time = usize;
 
+fn add(pos: Pos, m: Move) -> Option<Pos> {
+    match m {
+        Move::WAIT => Some(pos),
+        Move::DOWN => Some(Pos { x: pos.x, y: pos.y+1 }),
+        Move::RIGHT => Some(Pos { x: pos.x+1, y: pos.y}),
+        Move::UP => {
+            if pos.y > 0 {
+                Some(Pos { x: pos.x, y: pos.y-1})
+            } else {
+                None
+            }
+        },
+        Move::LEFT => {
+            if pos.x > 0 {
+                Some(Pos { x: pos.x-1, y: pos.y})
+            } else {
+                None
+            }
+        }
+    }
+}
+
 fn update(path: &mut Path, world: &Array3<bool>) {
     // Current path is valid ...
     // i) Try and extend path
+    let mut new_pos = path.pos;
+
+    // ii) backtrack
 }
 
 #[derive(Debug, Clone, PartialEq)]
