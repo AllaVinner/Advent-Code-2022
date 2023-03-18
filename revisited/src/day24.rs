@@ -31,6 +31,7 @@ fn add(pos: Pos, m: Move) -> Option<Pos> {
 fn update(path: &mut Path, world: &Array3<bool>) {
     // Current path is valid ...
     // i) Try and extend path
+
     let mut new_pos = path.pos;
 
     // ii) backtrack
@@ -43,6 +44,10 @@ enum Move {
     LEFT,
     RIGHT,
     WAIT
+}
+
+fn move_iter() -> std::slice::Iter<'static, Move> {
+   [Move::WAIT, Move::UP, Move::RIGHT, Move::DOWN, Move::LEFT].iter()
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -141,6 +146,10 @@ pub fn task1(input: &str) -> String {
 
     for origin in origins.into_iter() {
         println!("Origi {:?}", initialize_path(origin));
+    }
+
+    for m in move_iter() {
+        println!("Move {:?}", m);
     }
 
     // For each origin
