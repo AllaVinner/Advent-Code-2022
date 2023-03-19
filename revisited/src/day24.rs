@@ -6,7 +6,7 @@ type OriginStack = Vec<Origin>;
 type BlizzardWorld = Array3<bool>;
 type Time = usize;
 
-fn add(pos: Pos, m: Move) -> Option<Pos> {
+fn add(pos: Pos, m: &Move) -> Option<Pos> {
     match m {
         Move::WAIT => Some(pos),
         Move::DOWN => Some(Pos { x: pos.x, y: pos.y+1 }),
@@ -31,13 +31,35 @@ fn add(pos: Pos, m: Move) -> Option<Pos> {
 fn update(path: &mut Path, world: &Array3<bool>) {
     // Current path is valid ...
     // i) Try and extend path
+    let mut new_pos;
+    let mut blizzard_state;
+    loop {
+        for m in move_iter() {
+            new_pos = match add(path.pos, m) {
+                Some(p) => p,
+                None => continue
+            };
+    
+            blizzard_state =  world.get((path.len() + 1, new_pos.x, new_pos.y));
+            if blizzard_state.is_none() {
+                continue;
+            }
+            if *blizzard_state.unwrap() {
+                continue;
+            }
+            path.moves.push(m.clone());
+            return;
+        }
 
-    let mut new_pos = path.pos;
+        let prev_move = path.moves.pop().unwrap_or_else(|| return);
+        for m in iter_from_move(&prev_move) {
 
-    // ii) backtrack
+        }
+    }
+    
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 enum Move {
     UP,
     DOWN,
@@ -46,8 +68,35 @@ enum Move {
     WAIT
 }
 
+impl Move {
+    fn next(&self) -> Option<Move> {
+        match self {
+            Move::WAIT => Some(Move::UP),
+            Move::UP => Some(Move::RIGHT),
+            Move::RIGHT => Some(Move::DOWN),
+            Move::DOWN => Some(Move::LEFT),
+            Move::LEFT => None
+        }
+    }
+}
+
 fn move_iter() -> std::slice::Iter<'static, Move> {
    [Move::WAIT, Move::UP, Move::RIGHT, Move::DOWN, Move::LEFT].iter()
+}
+
+fn iter_from_move(m: &Move) -> std::slice::Iter<'static, Move> {
+    let mut moves = move_iter();
+    loop {
+        let next_move = moves.next();
+
+        if Some(m) == next_move {
+            return moves;
+        }
+
+        if next_move.is_none() {
+            return moves;
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -55,6 +104,15 @@ struct Path {
     moves: Vec<Move>,
     origin: Origin,
     pos: Pos
+}
+
+impl Path {
+    fn len(&self) -> usize {
+        match self.origin {
+            Origin::From(_) => self.moves.len(),
+            Origin::Initial(t) => self.moves.len() + t,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
