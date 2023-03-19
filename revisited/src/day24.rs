@@ -33,30 +33,34 @@ fn update(path: &mut Path, world: &Array3<bool>) {
     // i) Try and extend path
     let mut new_pos;
     let mut blizzard_state;
+    let mut iter_move = move_iter();
+
     loop {
-        for m in move_iter() {
+        for m in iter_move {
             new_pos = match add(path.pos, m) {
                 Some(p) => p,
                 None => continue
             };
     
-            blizzard_state =  world.get((path.len() + 1, new_pos.x, new_pos.y));
+            blizzard_state = world.get((path.len() + 1, new_pos.x, new_pos.y));
             if blizzard_state.is_none() {
                 continue;
             }
             if *blizzard_state.unwrap() {
                 continue;
             }
+
             path.moves.push(m.clone());
             return;
         }
 
-        let prev_move = path.moves.pop().unwrap_or_else(|| return);
-        for m in iter_from_move(&prev_move) {
+        let prev_move = match path.moves.pop() {
+            None => return,
+            Some(m) => m,
+        };
 
-        }
+        iter_move = iter_from_move(&prev_move);
     }
-    
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -202,11 +206,7 @@ pub fn task1(input: &str) -> String {
 
     let origins = get_initial_origins(&w);
 
-    for origin in origins.into_iter() {
-        println!("Origi {:?}", initialize_path(origin));
-    }
-
-    for m in move_iter() {
+    for m in iter_from_move(&Move::LEFT) {
         println!("Move {:?}", m);
     }
 
