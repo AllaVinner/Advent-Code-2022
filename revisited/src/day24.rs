@@ -1,5 +1,6 @@
 use ndarray::{Array2, Array3};
 use num::integer::lcm;
+use std::cmp::min;
 
 type OriginMap = Array2<Option<Origin>>;
 type OriginStack = Vec<Origin>;
@@ -28,19 +29,47 @@ fn add(pos: Pos, m: &Move) -> Option<Pos> {
     }
 }
 
+fn sub(pos: Pos, m: &Move) -> Option<Pos> {
+    match m {
+        Move::WAIT => Some(pos),
+        Move::UP => Some(Pos { x: pos.x, y: pos.y+1 }),
+        Move::LEFT => Some(Pos { x: pos.x+1, y: pos.y}),
+        Move::DOWN => {
+            if pos.y > 0 {
+                Some(Pos { x: pos.x, y: pos.y-1})
+            } else {
+                None
+            }
+        },
+        Move::RIGHT => {
+            if pos.x > 0 {
+                Some(Pos { x: pos.x-1, y: pos.y})
+            } else {
+                None
+            }
+        }
+    }
+}
+
+
 fn update(path: &mut Path, world: &Array3<bool>) {
     // Current path is valid ...
     // i) Try and extend path
     let mut new_pos;
     let mut blizzard_state;
-    let mut iter_move = move_iter();
-
+    let mut iter_move = if path.moves.len() == world.dim().0 {
+        iter_from_move(&path.moves.pop().unwrap())
+    } else {
+        move_iter()
+    };
     loop {
+        println!("Starting update with: {:?}", &path);
         for m in iter_move {
             new_pos = match add(path.pos, m) {
                 Some(p) => p,
                 None => continue
             };
+            println!("New pos was {:?}", new_pos);
     
             blizzard_state = world.get((path.len() + 1, new_pos.x, new_pos.y));
             if blizzard_state.is_none() {
@@ -49,19 +78,26 @@ fn update(path: &mut Path, world: &Array3<bool>) {
             if *blizzard_state.unwrap() {
                 continue;
             }
+            println!("Move was choosen, {:?}, world index {:?}", m, (path.len() + 1, new_pos.x, new_pos.y));
 
             path.moves.push(m.clone());
+            path.pos = new_pos;
             return;
         }
-
+        println!("No move was good");
         let prev_move = match path.moves.pop() {
             None => return,
             Some(m) => m,
+        };
+        path.pos = match sub(path.pos, &prev_move) {
+            Some(p) => p,
+            None => panic!("Subtracted move which cause the move to be invalid.")
         };
 
         iter_move = iter_from_move(&prev_move);
     }
 }
+
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum Move {
@@ -125,7 +161,7 @@ struct Pos {
     y: usize
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 enum Origin {
     Initial(Time),
     From(Pos)
@@ -135,13 +171,13 @@ fn parse_input(input: &str) -> Array2<Move>{
     let width = input.lines().nth(0).unwrap().chars().count() - 2;
     let height = input.lines().count() - 2;
 
-    let mut blizzards= Array2::from_elem([height, width], Move::WAIT);
+    let mut blizzards= Array2::from_elem([width, height], Move::WAIT);
     for (row, line) in input.lines().skip(1).enumerate() {
         if row == height {
             break;
         }
         for (col, c) in line.chars().skip(1).enumerate(){
-            blizzards[[row, col]] = match c {
+            blizzards[[col, row]] = match c {
                 '<' => Move::LEFT,
                 '^' => Move::UP,
                 '>' => Move::RIGHT,
@@ -157,21 +193,21 @@ fn parse_input(input: &str) -> Array2<Move>{
 
 fn create_world(initial_world: Array2<Move>, num_time_steps: usize) -> Array3<bool> {
     let mut world = Array3::from_elem((num_time_steps, initial_world.dim().0, initial_world.dim().1), false);
-    for row in 0..initial_world.dim().0 {
-        for col in 0..initial_world.dim().1 {
-            let direction = &initial_world[[row, col]];
+    for col in 0..initial_world.dim().0 {
+        for row in 0..initial_world.dim().1 {
+            let direction = &initial_world[[col, row]];
             if direction == &Move::WAIT {
                 continue;
             }
             for time in 0..num_time_steps {
                 let (r, c) = match direction {
-                    Move::DOWN => ((row+time) % initial_world.dim().0, col),
-                    Move::RIGHT =>  (row, (col+time) % initial_world.dim().1),
-                    Move::UP => ((row+num_time_steps-time) % initial_world.dim().0, col),
-                    Move::LEFT =>  (row, (col+num_time_steps-time) % initial_world.dim().1),
+                    Move::DOWN => ((row+time) % initial_world.dim().1, col),
+                    Move::RIGHT =>  (row, (col+time) % initial_world.dim().0),
+                    Move::UP => ((row+num_time_steps-time) % initial_world.dim().1, col),
+                    Move::LEFT =>  (row, (col+num_time_steps-time) % initial_world.dim().0),
                     Move::WAIT => continue
                 };
-                world[[time, r,c]] = true;
+                world[[time, c, r]] = true;
             }
         }
     }
@@ -190,83 +226,63 @@ fn get_initial_origins(world: &Array3<bool>) -> Vec<Origin> {
     origins
 }
 
-fn initialize_path(origin: Origin) -> Path {
-    let mut pos = match origin {
+fn initialize_path(origin: &Origin) -> Path {
+    let mut pos = match *origin {
         Origin::Initial(t) => Pos {x: 0, y: 0},
         Origin::From(p) => p
     };
-    Path {moves: Vec::<Move>::new(), origin, pos}
+    Path {moves: Vec::<Move>::new(), origin: origin.clone(), pos }
 }
 
 pub fn task1(input: &str) -> String {
     let initial_world = parse_input(input);
     let period = lcm(initial_world.dim().0, initial_world.dim().1);
+    let goal = Pos{x: initial_world.dim().0 -1, y: initial_world.dim().1-1};
 
-    let w = create_world(initial_world, period);
+    let mut reached_map = Array2::<Option<Origin>>::from_elem([initial_world.dim().0, initial_world.dim().1], None);
+    let world = create_world(initial_world, period);
 
-    let origins = get_initial_origins(&w);
+    let mut origins = get_initial_origins(&world);
+    let mut next_origins = Vec::<Origin>::new();
+    let mut goal_reached = false;
 
-    for m in iter_from_move(&Move::LEFT) {
-        println!("Move {:?}", m);
-    }
-
-    // For each origin
-    // Init path with origin
-    // while true
-    // get next move,
-    // 
-    // Options
-    // i) If no-more next move, Remove top, Set iterator to top+1
-    // ii) It is an invalid path -> discard move, continue
-    // iii) Is valid and destination reached ....
-    // iv) Period time is reached ...
-    // i) It is a valid path -> add move, reset move iterator, Continue
-
-    /*
-    for origin in origins {
-        path = Path::new(origin);
-        moves.reset();
-
-        loop {
-            move = moves.next();
-            
-            if move.is_none() {
-                last_move = path.pop();
-                if path.is_exhausted() {
-                    break;
-                }
-                moves.set(last_move);
-                continue;
-            }
-
-            path.add(move.unwrap());
-
-            is_blizzard = World.get(path.pos());
-            if is_blizzard.is_none()  || is_blizzard.unwrap() {
-                path.pop();
-                continue;
-            }
-            if is_goal(path.pos()) {
-                path.pop()
-                // Some more things
-                continue;
-            }
-
-            if (path.length() == period) {
-                reach_map.add(path.pos())
-                path.pop();
-                continue;
-            }
-
-            move.reset();
-
-        }
-
-    }
+    reached_map[[0,0]] = Some(origins[0]);
     
-     */
-
-
+    let mut best_value = usize::MAX;
+    let mut num_cycles = 0;
+    loop {
+        next_origins = Vec::<Origin>::new();
+        for origin in origins {
+            println!("Starting from origin {:?}", origin);
+            let mut path = initialize_path(&origin);
+            loop {
+                update(&mut path, &world);
+                println!("Currently checking path: {:?}", &path);
+                if path.pos == goal {
+                    best_value = min(path.len() + period*num_cycles, best_value);
+                    goal_reached = true;
+                    continue;
+                }
+                if path.moves.len() == period {
+                    if reached_map[[path.pos.x, path.pos.y]].is_none() {
+                        reached_map[[path.pos.x, path.pos.y]] = Some(path.origin);
+                        next_origins.push(Origin::From(path.pos));
+                    }
+                }
+                if path.moves.len() == 0 {
+                    break;
+                }      
+            }
+        }
+        if goal_reached {
+            break;
+        }
+        println!("Period done, current reached mapped {:?}", &reached_map);
+        num_cycles = num_cycles + 1;
+        origins = next_origins;
+        break;
+    }
+    println!("Best path found... {:?}", best_value);
 
     "AAA".to_string()
 }

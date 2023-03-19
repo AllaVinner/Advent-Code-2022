@@ -1,5 +1,4 @@
 use std::fs;
-
 use crate::day24::{task1, task2};
 mod day24;
 
