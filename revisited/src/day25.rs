@@ -13,7 +13,7 @@ fn parse_digit(c: char) -> isize {
 
 pub fn task1(input: &str) -> String {
     input.lines()
-        .map(|line| line.chars().fold(0, |n, c| 5*(n+parse_digit(c)) ))
+        .map(|line| line.chars().fold(0, |n, c| 5*n+parse_digit(c)))
         .sum::<isize>()
         .to_string()
 }
