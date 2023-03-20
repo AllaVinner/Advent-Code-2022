@@ -57,19 +57,19 @@ fn update(path: &mut Path, world: &Array3<bool>) {
     // i) Try and extend path
     let mut new_pos;
     let mut blizzard_state;
-    let mut iter_move = if path.moves.len() == world.dim().0 {
+    let mut iter_move = if path.moves.len() == (world.dim().0-1) {
         iter_from_move(&path.moves.pop().unwrap())
     } else {
         move_iter()
     };
     loop {
-        println!("Starting update with: {:?}", &path);
+        //println!("Starting update with: {:?}", &path);
         for m in iter_move {
             new_pos = match add(path.pos, m) {
                 Some(p) => p,
                 None => continue
             };
-            println!("New pos was {:?}", new_pos);
+            //println!("New pos was {:?}", new_pos);
     
             blizzard_state = world.get((path.len() + 1, new_pos.x, new_pos.y));
             if blizzard_state.is_none() {
@@ -78,13 +78,13 @@ fn update(path: &mut Path, world: &Array3<bool>) {
             if *blizzard_state.unwrap() {
                 continue;
             }
-            println!("Move was choosen, {:?}, world index {:?}", m, (path.len() + 1, new_pos.x, new_pos.y));
+            //println!("Move was choosen, {:?}, world index {:?}", m, (path.len() + 1, new_pos.x, new_pos.y));
 
             path.moves.push(m.clone());
             path.pos = new_pos;
             return;
         }
-        println!("No move was good");
+        //println!("No move was good");
         let prev_move = match path.moves.pop() {
             None => return,
             Some(m) => m,
@@ -253,20 +253,47 @@ pub fn task1(input: &str) -> String {
     loop {
         next_origins = Vec::<Origin>::new();
         for origin in origins {
-            println!("Starting from origin {:?}", origin);
+            //println!("Starting from origin {:?}", origin);
             let mut path = initialize_path(&origin);
             loop {
                 update(&mut path, &world);
-                println!("Currently checking path: {:?}", &path);
+                //println!("Currently checking path: {:?}", &path);
                 if path.pos == goal {
                     best_value = min(path.len() + period*num_cycles, best_value);
                     goal_reached = true;
                     continue;
                 }
-                if path.moves.len() == period {
-                    if reached_map[[path.pos.x, path.pos.y]].is_none() {
-                        reached_map[[path.pos.x, path.pos.y]] = Some(path.origin);
-                        next_origins.push(Origin::From(path.pos));
+                if path.len() == (period-1) {
+                    println!("Reached path with period: {:?}", path);
+                    for m in move_iter() {
+                        let mut new_pos = match add(path.pos, m) {
+                            Some(p) => p,
+                            None => continue
+                        };
+                
+                        let mut blizzard_state = world.get((0, new_pos.x, new_pos.y));
+                        if blizzard_state.is_none() {
+                            continue;
+                        }
+                        if *blizzard_state.unwrap() {
+                            continue;
+                        }
+                        
+                        path.moves.push(m.clone());
+                        path.pos = new_pos;
+                        if reached_map[[path.pos.x, path.pos.y]].is_none() {
+                            reached_map[[path.pos.x, path.pos.y]] = Some(path.origin);
+                            next_origins.push(Origin::From(path.pos));
+                        }
+                        let prev_move = match path.moves.pop() {
+                            None => panic!("In main Subtracted move which cause the move to be invalid."),
+                            Some(m) => m,
+                        };
+                        path.pos = match sub(path.pos, &prev_move) {
+                            Some(p) => p,
+                            None => panic!("In main Subtracted move which cause the move to be invalid.")
+                        };
+                
                     }
                 }
                 if path.moves.len() == 0 {
@@ -280,7 +307,6 @@ pub fn task1(input: &str) -> String {
         println!("Period done, current reached mapped {:?}", &reached_map);
         num_cycles = num_cycles + 1;
         origins = next_origins;
-        break;
     }
     println!("Best path found... {:?}", best_value);
 
