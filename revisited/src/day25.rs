@@ -11,9 +11,13 @@ fn parse_digit(c: char) -> isize {
     }
 }
 
+fn snafu_to_num(snafu: &str) -> isize {
+    snafu.chars().fold(0, |n, c| 5*n+parse_digit(c))
+}
+
 pub fn task1(input: &str) -> String {
     input.lines()
-        .map(|line| line.chars().fold(0, |n, c| 5*n+parse_digit(c)))
+        .map(|line| snafu_to_num(line))
         .sum::<isize>()
         .to_string()
 }
