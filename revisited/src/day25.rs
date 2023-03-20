@@ -16,7 +16,6 @@ fn as_base_5(n: u64) -> String {
     let mut num_base_5 =  String::new();
     let mut rem = n ;
     let mut div;
-    println!("{:?}", max_pow);
     for i in 0..=max_pow {
         div = rem / 5_u64.pow(max_pow-i) as u64;
         rem = rem % 5_u64.pow(max_pow-i) as u64;
@@ -56,7 +55,6 @@ pub fn task1(input: &str) -> String {
     let n = input.lines()
         .map(|line| snafu_to_num(line))
         .sum::<isize>();
-    println!("{:?}", n);
     num_to_snafu(u64::try_from(n).ok().unwrap())
 }
 
