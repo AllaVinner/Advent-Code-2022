@@ -1,6 +1,6 @@
 
 
-fn parse_digit(c: char) -> isize {
+fn parse_digit(c: char) -> i64 {
     match c {
         '2' => 2,
         '1' => 1,
@@ -14,11 +14,11 @@ fn parse_digit(c: char) -> isize {
 fn as_base_5(n: u64) -> String {
     let max_pow = (n as f64).log(5 as f64).floor() as u32;
     let mut num_base_5 =  String::new();
-    let mut rem = n ;
+    let mut rem = n;
     let mut div;
     for i in 0..=max_pow {
-        div = rem / 5_u64.pow(max_pow-i) as u64;
-        rem = rem % 5_u64.pow(max_pow-i) as u64;
+        div = rem / 5_u64.pow(max_pow-i);
+        rem = rem % 5_u64.pow(max_pow-i);
         num_base_5.push_str(&div.to_string());
     }
     num_base_5
@@ -26,16 +26,13 @@ fn as_base_5(n: u64) -> String {
 
 fn get_normalizing_constant(n: u64) -> u64 {
     let max_pow = (n as f64).log(5 as f64).floor() as u64;
-    let mut N = 0;
-    for _ in 0..=max_pow {
-        N = 2 + 5*N;
-    }
-    N
+    (0..=max_pow).fold(0, |acc, _| 2 + 5*acc)
+
 } 
 
 fn num_to_snafu(n: u64) -> String {
-    let N = get_normalizing_constant(n);
-    as_base_5(n+N).chars().map(|c| match c {
+    let m = get_normalizing_constant(n);
+    as_base_5(n+m).chars().map(|c| match c {
         '4' => '2',
         '3' => '1',
         '2' => '0',
@@ -47,15 +44,15 @@ fn num_to_snafu(n: u64) -> String {
 
 
 
-fn snafu_to_num(snafu: &str) -> isize {
-    snafu.chars().fold(0, |n, c| 5*n+parse_digit(c))
+fn snafu_to_num(snafu: &str) -> u64 {
+    snafu.chars().fold(0, |n, c| 5*n+parse_digit(c)) as u64
 }
 
 pub fn task1(input: &str) -> String {
     let n = input.lines()
         .map(|line| snafu_to_num(line))
-        .sum::<isize>();
-    num_to_snafu(u64::try_from(n).ok().unwrap())
+        .sum::<u64>();
+    num_to_snafu(n)
 }
 
 
