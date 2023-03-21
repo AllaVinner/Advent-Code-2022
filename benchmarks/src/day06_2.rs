@@ -23,7 +23,7 @@ pub fn benchmark_0(input: &str) -> String {
 }
 
 pub fn benchmark_1(input: &str) -> String {
-    let n = 4;
+    let n = 14;
     let mut alphabet = [0; 128];
     let mut num_dup = 0;
     let mut i;

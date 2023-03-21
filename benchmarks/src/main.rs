@@ -11,17 +11,20 @@ mod day06_2;
     about="THis is a great command", 
     long_about = "Actually This is the greatest that ever existed")]
 struct Args {
-    #[arg(short, long)]
+    #[arg(short, long, default_value_t=6)]
     day: u32,
 
     #[arg(short, long, default_value_t=1)]
     task: u32,
 
-    #[arg(short, long, default_value_t=1)]
+    #[arg(short, long, default_value_t=0)]
     benchmark_id: u32,
     
     #[arg(short, long)]
     input_file: String,
+
+    #[arg(short, long, default_value_t=10)]
+    num_iterations: u32,
 }
 
 
@@ -42,8 +45,11 @@ fn main() {
         },
         _ => panic!("Day {} is not implemented.", args.day),
     };
+    let mut ans: String = "".to_string();
     let now = Instant::now();
-    let ans = fun(&input);
-    let elapsed = now.elapsed();
+    for _ in 0..args.num_iterations{
+        ans = fun(&input);
+    }
+    let elapsed = now.elapsed() / args.num_iterations;
     println!("Time: {:.2?},  with answere {}, of benchmark {} for task {} on day {}", elapsed, ans, args.benchmark_id, args.task, args.day);
 } 
