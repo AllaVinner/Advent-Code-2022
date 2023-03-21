@@ -31,10 +31,11 @@ fn main() {
     let args: Args = Args::parse();
     let input = fs::read_to_string(args.input_file).unwrap().replace("\r", "");
 
-    let fun = match args.day {
+    let fun: fn(&str) -> String = match args.day {
         6 => match args.task {
             2 => match args.benchmark_id {
                 0 => day06_2::benchmark_0,
+                1 => day06_2::benchmark_1,
                 _ => panic!("Benchmark {} for task {} on day {} is not implemented.",args.benchmark_id, args.task, args.day),
             },
             _ => panic!("Task {} on day {} is not implemented.", args.task, args.day),
