@@ -57,3 +57,28 @@ pub fn benchmark_1(input: &str) -> String {
     
     last_idx.to_string()
 }
+
+
+pub fn benchmark_2(input: &str) -> String {
+    let bytes = input.as_bytes();
+    let mut idx = 0;
+    while let Some(slice) = bytes.get(idx..idx + 14) {
+        let mut state = 0u32;
+        let mut pos = (slice.len() - 1) as isize;
+        while pos >= 0 {
+            let bit_idx = 1 << (slice[pos as usize] % 32);
+            if state & bit_idx != 0 {
+                break;
+            } else {
+                state |= bit_idx;
+                pos -= 1;
+            }
+        }
+
+    if pos < 0 {
+            return (idx + 14).to_string();
+        }
+        idx += (pos + 1) as usize;
+    }
+    panic!("Did not find a solutuion")
+}
