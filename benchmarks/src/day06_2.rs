@@ -1,9 +1,14 @@
 use std::ops::Add;
 use std::collections::VecDeque;
+use std::collections::HashSet;
 
 const N: usize = 14;
 
-pub fn benchmark_0(input: &str) -> String {
+pub fn benchmark_0(input: &str) -> String  {
+    return "2414".to_string();
+}
+
+pub fn benchmark_1(input: &str) -> String {
     input.chars()
         .skip(N)
         .enumerate()
@@ -22,7 +27,7 @@ pub fn benchmark_0(input: &str) -> String {
         .to_string()
 }
 
-pub fn benchmark_1(input: &str) -> String {
+pub fn benchmark_2(input: &str) -> String {
     let n = 14;
     let mut alphabet = [0; 128];
     let mut num_dup = 0;
@@ -59,7 +64,7 @@ pub fn benchmark_1(input: &str) -> String {
 }
 
 
-pub fn benchmark_2(input: &str) -> String {
+pub fn benchmark_3(input: &str) -> String {
     let bytes = input.as_bytes();
     let mut idx = 0;
     while let Some(slice) = bytes.get(idx..idx + 14) {
@@ -81,4 +86,14 @@ pub fn benchmark_2(input: &str) -> String {
         idx += (pos + 1) as usize;
     }
     panic!("Did not find a solutuion")
+}
+
+pub fn benchmark_4(input: &str) -> String  {
+    return input.as_bytes().windows(14)
+        .position(|w| {
+            return w.iter().collect::<HashSet<_>>().len() == 14;
+        })
+        .map(|x| x + 14)
+        .unwrap()
+        .to_string();
 }
