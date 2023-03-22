@@ -27,8 +27,6 @@ struct Args {
 }
 
 
-
-
 fn main() {
     let args: Args = Args::parse();
     let input = fs::read_to_string(args.input_file).unwrap().replace("\r", "");
@@ -41,6 +39,7 @@ fn main() {
                 2 => day06_2::benchmark_2,
                 3 => day06_2::benchmark_3,
                 4 => day06_2::benchmark_4,
+                5 => day06_2::benchmark_5,
                 _ => panic!("Benchmark {} for task {} on day {} is not implemented.",args.benchmark_id, args.task, args.day),
             },
             _ => panic!("Task {} on day {} is not implemented.", args.task, args.day),

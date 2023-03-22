@@ -97,3 +97,42 @@ pub fn benchmark_4(input: &str) -> String  {
         .unwrap()
         .to_string();
 }
+
+
+
+pub fn benchmark_5(input: &str) -> String {
+    let n = 14;
+    let mut alphabet = [0; 128];
+    let mut num_dup = 0;
+    let mut i;
+    for ii in input.bytes().take(n) {
+        i = ii as usize;
+        alphabet[i] += 1;
+        if alphabet[i] == 2 {
+            num_dup += 1;
+        }
+    }
+    let mut i1;
+    let mut i2;
+    let mut last_idx=0;
+    for (k, (c1, c2)) in input.bytes().zip(input.bytes().skip(n)).enumerate() {
+        i1 = c1 as usize;
+        i2 = c2 as usize;
+        
+        alphabet[i1] -= 1;
+        if alphabet[i1] == 1 {
+            num_dup -= 1;
+        }
+        alphabet[i2] += 1;
+        if alphabet[i2] == 2 {
+            num_dup += 1;
+        }
+        if num_dup == 0 {
+            last_idx = k+n+1;
+            break;
+        }
+    }
+    
+    last_idx.to_string()
+}
+
