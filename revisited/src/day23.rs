@@ -155,29 +155,3 @@ pub fn task2(input: &str) -> String {
 }
 
 
-
-pub fn task2_2(input: &str) -> String {
-    let mut elves = HashMap::from_iter(parse_input(input).into_iter().map(|pos| (pos, 0)));
-    let mut proposals: HashMap<Pos, Pos> = HashMap::new();
-    let mut counter: HashMap<Pos, u32> = HashMap::new();
-    let mut was_changed;
-    let mut num_iter = 0;
-    for (i, first_direction) in get_direction_iterator(Direction::NORTH).enumerate() {
-        proposals = elves.iter().map(|elf| elf_proposal(elf, &elves, first_direction)).collect();
-        was_changed = false;
-        for (pos, proposal) in elves.iter_mut().zip(proposals.iter()) {
-            if proposals.iter().filter(|p| *p == proposal).count() == 1 {
-                if pos != proposal {   
-                    *pos = *proposal;
-                    was_changed = true;
-                }
-            }
-        }
-        if !was_changed {
-            num_iter = i+1;
-            break;
-        }
-    }
-
-    num_iter.to_string()
-}
