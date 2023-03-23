@@ -1,6 +1,7 @@
 use std::cmp::{min, max};
+use std::collections::HashMap;
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone, Copy, Eq, Hash)]
 struct Pos {
     x: i32,
     y: i32
@@ -44,6 +45,18 @@ fn get_direction_neighbours(pos: &Pos, direction: Direction) -> [Pos; 3] {
     } 
 }
 
+fn get_neighbours(pos: &Pos) -> [Pos; 8] {
+     [
+        Pos{x: pos.x-1, y: pos.y-1},
+        Pos{x: pos.x, y: pos.y-1},
+        Pos{x: pos.x+1, y: pos.y-1},
+        Pos{x: pos.x+1, y: pos.y},
+        Pos{x: pos.x+1, y: pos.y+1},
+        Pos{x: pos.x, y: pos.y+1},
+        Pos{x: pos.x-1, y: pos.y+1},
+        Pos{x: pos.x-1, y: pos.y},
+     ]
+}
 
 fn parse_input(input: &str) -> Vec<Pos> {
     input.lines()
@@ -59,6 +72,16 @@ fn parse_input(input: &str) -> Vec<Pos> {
 
 fn elf_proposal(pos: &Pos, elves: &Vec<Pos>, first_direction: Direction) -> Pos {
     let mut is_free;
+    let mut is_surronded = false;
+    for neighbour in get_neighbours(pos).into_iter() {
+        if elves.contains(&neighbour) {
+            is_surronded = true;
+            break;
+        }
+    }
+    if !is_surronded {
+        return *pos;
+    }
     for direction in get_direction_iterator(first_direction).take(4) {
         is_free = true;
         for neighbour in get_direction_neighbours(pos, direction).into_iter() {
@@ -102,20 +125,59 @@ pub fn task1(input: &str) -> String {
     }
 
     let [min_x, max_x, min_y, max_y] = get_extremes(&elves);
-    let area = (max_x - min_x+1) * (max_y-min_y+1);
-    for p in elves.iter() {
-        println!("x: {}, y: {}", p.x, p.y);
-    }
-    
-    println!("{:?}", area);
-    println!("Num Elves {:?}", elves.len());
-    println!("Width {:?}", (max_x - min_x+1));
-    println!("Height {:?}", (max_y-min_y+1));
-    "ASD".to_string()
+    ((max_x - min_x+1) * (max_y-min_y+1) - elves.len() as i32).to_string()
 }
 
 
 pub fn task2(input: &str) -> String {
+    let mut elves = parse_input(input);
+    let mut proposals: Vec<Pos> = Vec::new();
+    let mut was_changed;
+    let mut num_iter = 0;
+    for (i, first_direction) in get_direction_iterator(Direction::NORTH).enumerate() {
+        proposals = elves.iter().map(|elf| elf_proposal(elf, &elves, first_direction)).collect();
+        was_changed = false;
+        for (pos, proposal) in elves.iter_mut().zip(proposals.iter()) {
+            if proposals.iter().filter(|p| *p == proposal).count() == 1 {
+                if pos != proposal {   
+                    *pos = *proposal;
+                    was_changed = true;
+                }
+            }
+        }
+        if !was_changed {
+            num_iter = i+1;
+            break;
+        }
+    }
 
-    "ASD".to_string()
+    num_iter.to_string()
+}
+
+
+
+pub fn task2_2(input: &str) -> String {
+    let mut elves = HashMap::from_iter(parse_input(input).into_iter().map(|pos| (pos, 0)));
+    let mut proposals: HashMap<Pos, Pos> = HashMap::new();
+    let mut counter: HashMap<Pos, u32> = HashMap::new();
+    let mut was_changed;
+    let mut num_iter = 0;
+    for (i, first_direction) in get_direction_iterator(Direction::NORTH).enumerate() {
+        proposals = elves.iter().map(|elf| elf_proposal(elf, &elves, first_direction)).collect();
+        was_changed = false;
+        for (pos, proposal) in elves.iter_mut().zip(proposals.iter()) {
+            if proposals.iter().filter(|p| *p == proposal).count() == 1 {
+                if pos != proposal {   
+                    *pos = *proposal;
+                    was_changed = true;
+                }
+            }
+        }
+        if !was_changed {
+            num_iter = i+1;
+            break;
+        }
+    }
+
+    num_iter.to_string()
 }
