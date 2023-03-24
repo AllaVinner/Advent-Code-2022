@@ -24,19 +24,29 @@ fn parse_input(input: &str) -> HashSet<Pos> {
         .collect::<HashSet<Pos>>()
 }
 
-fn parse_metadata(input: &str) {
-    let mut row_def: Vec<Line> = input.lines()
-        .enumerate()
-        .map(|(y, line)| {
+fn parse_metadata(input: &str) -> (Vec<Line>, Vec<Line>) {
+    let mut row_defs: Vec<Line> = input.lines()
+        .map(| line| {
             let start = line.chars().position(|c| c != ' ').unwrap();
             Line {start: start as u32, len: (line.chars().count() - start) as u32 }
         })
         .collect();
-        
+    let num_col = input.lines().next().unwrap().chars().count();
+    let mut col_def: Vec<Line> = Vec::with_capacity(num_col);
+    let col_defs: Vec<Line> = (0..num_col).into_iter()
+        .map(|col_i| {
+            let start = row_defs.iter().position(|rd| rd.start <= col_i as u32).unwrap();
+            let end = row_defs.iter().position(|rd| col_i as u32 <= rd.start + rd.len).unwrap();
+            Line {start: start as u32, len: (end-start) as u32}
+        })
+        .collect();
+    (row_defs, col_defs)
 }
 
 
 pub fn task1(input: &str) -> String {
+    let md = parse_metadata(input);
+    println!("{:?}", md);
     "AAA".to_string()
 }
 
