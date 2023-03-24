@@ -99,6 +99,137 @@ impl Agent {
             self.pos = proposal;
         }
     }
+    
+    fn step2(& mut self, steps: u32, map: &Map) {
+        for _ in 0..steps {
+            let mut proposal = match self.direction {
+                Direction::NORHT => Pos{ x: self.pos.x, y: self.pos.y-1},
+                Direction::WEST => Pos{ x: self.pos.x-1, y: self.pos.y},
+                Direction::SOUTH => Pos{ x: self.pos.x, y:self.pos.y+1},
+                Direction::EAST => Pos{ x: self.pos.x+1, y: self.pos.y}
+            };
+            let x = proposal.x;
+            let y = proposal.y;
+            if y == -1 {
+                // On top
+                if x < 100 {
+                    proposal.x = 0;
+                    proposal.y = x-50+150;
+                    if map.obstacles.contains(&proposal) {
+                        break;
+                    }
+                    self.pos = proposal;
+                    self.direction = Direction::EAST;
+                } else {
+                    proposal.x = x-100;
+                    proposal.y = 199;
+                    if map.obstacles.contains(&proposal) {
+                        break;
+                    }
+                    self.pos = proposal;
+                    self.direction = Direction::NORHT;
+                }
+            } else if x == 150 {
+                proposal.x = 99;
+                proposal.y = y+100;
+                if map.obstacles.contains(&proposal) {
+                    break;
+                }
+                self.pos = proposal;
+                self.direction = Direction::WEST;
+            } else if y == 50 && x >= 100 {
+                proposal.x = 99;
+                proposal.y = x-100+50;
+                if map.obstacles.contains(&proposal) {
+                    break;
+                }
+                self.pos = proposal;
+                self.direction = Direction::WEST;
+            } else if x == 100 && 49 < y && y < 100 {
+                proposal.x = y-50+100;
+                proposal.y = 49;
+                if map.obstacles.contains(&proposal) {
+                    break;
+                }
+                self.pos = proposal;
+                self.direction = Direction::NORHT;
+            } else if x == 100 && 99 < y && y < 150 {
+                proposal.x = 149;
+                proposal.y = y-100;
+                if map.obstacles.contains(&proposal) {
+                    break;
+                }
+                self.pos = proposal;
+                self.direction = Direction::WEST;
+            } else if y == 150 && 49 < x {
+                proposal.x = 49;
+                proposal.y = x-50+150;
+                if map.obstacles.contains(&proposal) {
+                    break;
+                }
+                self.pos = proposal;
+                self.direction = Direction::WEST;
+            } else if x == 50 && 149 < y {
+                proposal.x = y-150+50;
+                proposal.y = 149;
+                if map.obstacles.contains(&proposal) {
+                    break;
+                }
+                self.pos = proposal;
+                self.direction = Direction::NORHT;
+            } else if y == 200 {
+                proposal.x = x+100;
+                proposal.y = 0;
+                if map.obstacles.contains(&proposal) {
+                    break;
+                }
+                self.pos = proposal;
+                self.direction = Direction::SOUTH;
+            } else if x == -1 && 149 < y {
+                proposal.x = y-150+50;
+                proposal.y = 0;
+                if map.obstacles.contains(&proposal) {
+                    break;
+                }
+                self.pos = proposal;
+                self.direction = Direction::SOUTH;
+            } else if x == 0 && 99 < y && y < 150 {
+                proposal.x = 50;
+                proposal.y = y-100;
+                if map.obstacles.contains(&proposal) {
+                    break;
+                }
+                self.pos = proposal;
+                self.direction = Direction::EAST;
+            } else if y == 99 && x < 50 {
+                proposal.x = 50;
+                proposal.y = x+50;
+                if map.obstacles.contains(&proposal) {
+                    break;
+                }
+                self.pos = proposal;
+                self.direction = Direction::EAST;
+            } else if x == 49 && 49 < y && y <100 {
+                proposal.x = y-50;
+                proposal.y = 100;
+                if map.obstacles.contains(&proposal) {
+                    break;
+                }
+                self.pos = proposal;
+                self.direction = Direction::SOUTH;
+            } else if x == 49 && x < 50 {
+                proposal.x = 0;
+                proposal.y = y+100;
+                if map.obstacles.contains(&proposal) {
+                    break;
+                }
+                self.pos = proposal;
+                self.direction = Direction::EAST;
+            }
+
+
+        }
+    }    
 
     fn follow(& mut self, instruction: Instruction, map: &Map) {
         match instruction {
@@ -191,12 +322,10 @@ pub fn task1(input: &str) -> String {
 
     let instructions = parse_instructions(instruction_input);
 
-   
     for instruction in instructions.iter() {
         agent.follow(*instruction, &map);
     }
     
-
     score(&agent).to_string()
 }
 
