@@ -1,34 +1,111 @@
 use std::collections::HashSet;
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 struct Pos {
     x: i32,
     y: i32
 }
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 struct Line {
     start: u32,
     len: u32
 }
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+struct Agent {
+    pos: Pos,
+    direction: Direction
+}
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 enum Rotation {
     LEFT,
     RIGHT
 }
 
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+enum Direction {
+    NORHT,
+    SOUTH,
+    WEST,
+    EAST
+}
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 enum Instruction {
-    RIGHT,
-    LEFT,
+    TURN(Rotation),
     GO(u32)
 }
 
 impl Line {
     fn inside(&self, i: u32) -> bool {
         self.start <= i && i < self.start+self.len
+    }
+}
+
+fn normalize(i: i32, line: Line) -> i32 {
+    let a = ((i+((line.start*(line.len-1)+line.len) as i32)) % (line.len as i32)) + (line.start as i32);
+    a
+}
+
+struct Map {
+    obstacles: HashSet<Pos>,
+    rows: Vec<Line>,
+    cols: Vec<Line>,
+}
+
+impl Pos {
+    fn step(& self, direction: Direction, map: &Map) -> Pos {
+        match direction {
+            Direction::NORHT => Pos{ x: self.x, y: normalize(self.y-1, map.cols[self.x as usize]) as i32},
+            Direction::WEST => Pos{ x: normalize(self.x-1, map.rows[self.y as usize]) as i32, y: self.y},
+            Direction::SOUTH => Pos{ x: self.x, y: normalize(self.y+1, map.cols[self.x as usize]) as i32},
+            Direction::EAST => Pos{ x: normalize(self.x+1, map.rows[self.y as usize]) as i32, y: self.y}
+        }
+    }
+}
+
+
+impl Agent {
+
+    fn turn(&mut self, rot: Rotation) {
+        let d = match self.direction {
+            Direction::NORHT => 0,
+            Direction::EAST => 1,
+            Direction::SOUTH => 2,
+            Direction::WEST => 3,
+        };
+    let a = match rot {
+        Rotation::LEFT => 1,
+        Rotation::RIGHT => -1
+    };
+
+    self.direction=  match (d+a+4) % 4 {
+        0 => Direction::NORHT,
+        1 => Direction::EAST,
+        2 => Direction::SOUTH,
+        3 => Direction::WEST,
+        _ => panic!("GOt number out of 0 to 4 range")
+    }       
+    }
+
+    fn step(& mut self, steps: u32, map: &Map) {
+        for _ in 0..steps {
+            let proposal = self.pos.step(self.direction, map);
+
+            if map.obstacles.contains(&proposal) {
+                break;
+            }
+            self.pos = proposal;
+        }
+    }
+
+    fn follow(& mut self, instruction: Instruction, map: &Map) {
+        match instruction {
+            Instruction::TURN(rot) => self.turn(rot),
+            Instruction::GO(steps) => self.step(steps, map),
+        };
     }
 }
 
@@ -75,14 +152,14 @@ fn parse_instructions(input: &str) -> Vec<Instruction> {
                     instructions.push(Instruction::GO(current_num));
                 }
                 current_num = 0;
-                instructions.push(Instruction::RIGHT)
+                instructions.push(Instruction::TURN(Rotation::RIGHT))
             },
             'L' => {
                 if current_num != 0 {
                     instructions.push(Instruction::GO(current_num));
                 }
                 current_num = 0;
-                instructions.push(Instruction::LEFT)
+                instructions.push(Instruction::TURN(Rotation::LEFT))
             },
             n => {
                 current_num = 10*current_num + n.to_digit(10).unwrap();
@@ -92,14 +169,33 @@ fn parse_instructions(input: &str) -> Vec<Instruction> {
     instructions
 }
 
+fn score(agent: &Agent) -> i32 {
+    1000*(agent.pos.y+1) + 4*(agent.pos.x+1) + match agent.direction {
+        Direction::EAST => 0,
+        Direction::SOUTH => 1,
+        Direction::WEST => 2,
+        Direction::NORHT => 3,
+    }
+}
+
 
 pub fn task1(input: &str) -> String {
     let (map_input, instruction_input) = input.split_once("\n\n").unwrap();
-    let objects = parse_objects(map_input);
-    let (row, col) = parse_metadata(map_input);
+    let obstacles = parse_objects(map_input);
+    let (rows, cols) = parse_metadata(map_input);
+    let mut agent = Agent {pos : Pos{x: rows[0].start as i32, y: 0}, direction: Direction::EAST};
+    let map = Map{obstacles, rows, cols};
+
     let instructions = parse_instructions(instruction_input);
-    println!("{:?}", col);
-    println!("{:?}", objects);
+
+   
+    for instruction in instructions.iter() {
+        agent.follow(*instruction, &map);
+    }
+
+    println!("{:?}", &agent);
+
+    println!("{:?}", score(&agent));
     "AAA".to_string()
 }
 
