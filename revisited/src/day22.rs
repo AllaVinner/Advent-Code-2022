@@ -70,15 +70,15 @@ impl Pos {
 impl Agent {
 
     fn turn(&mut self, rot: Rotation) {
-        let d = match self.direction {
+    let d = match self.direction {
             Direction::NORHT => 0,
             Direction::EAST => 1,
             Direction::SOUTH => 2,
             Direction::WEST => 3,
         };
     let a = match rot {
-        Rotation::LEFT => 1,
-        Rotation::RIGHT => -1
+        Rotation::LEFT => -1,
+        Rotation::RIGHT => 1
     };
 
     self.direction=  match (d+a+4) % 4 {
@@ -93,7 +93,6 @@ impl Agent {
     fn step(& mut self, steps: u32, map: &Map) {
         for _ in 0..steps {
             let proposal = self.pos.step(self.direction, map);
-
             if map.obstacles.contains(&proposal) {
                 break;
             }
@@ -166,6 +165,9 @@ fn parse_instructions(input: &str) -> Vec<Instruction> {
             }
         }
     }
+    if current_num > 0 {
+        instructions.push(Instruction::GO(current_num));
+    }
     instructions
 }
 
@@ -184,6 +186,7 @@ pub fn task1(input: &str) -> String {
     let obstacles = parse_objects(map_input);
     let (rows, cols) = parse_metadata(map_input);
     let mut agent = Agent {pos : Pos{x: rows[0].start as i32, y: 0}, direction: Direction::EAST};
+    
     let map = Map{obstacles, rows, cols};
 
     let instructions = parse_instructions(instruction_input);
@@ -192,11 +195,9 @@ pub fn task1(input: &str) -> String {
     for instruction in instructions.iter() {
         agent.follow(*instruction, &map);
     }
+    
 
-    println!("{:?}", &agent);
-
-    println!("{:?}", score(&agent));
-    "AAA".to_string()
+    score(&agent).to_string()
 }
 
 
