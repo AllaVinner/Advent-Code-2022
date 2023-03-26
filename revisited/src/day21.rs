@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
-#[derive(Debug)]
+use itertools::Itertools;
+
+#[derive(Debug, Clone, Copy)]
 enum Operand {
     ADD,
     SUB,
@@ -8,16 +10,35 @@ enum Operand {
     DIV
 }
 
+fn left_inv(res: i64, rhs: i64, op: Operand) -> i64 {
+    match op {
+        Operand::ADD => res - rhs,
+        Operand::SUB => res + rhs,
+        Operand::MUL => res / rhs,
+        Operand::DIV => res * rhs,
+    }
+}
+
+fn right_inv(res: i64, lhs: i64, op: Operand) -> i64 {
+    match op {
+        Operand::ADD => res - lhs,
+        Operand::SUB => lhs - res,
+        Operand::MUL => res / lhs,
+        Operand::DIV => lhs / res,
+    }
+}
+
+
 #[derive(Debug)]
 struct Reactive {
     id: String,
     lhs: String,
     rhs: String,
     operand: Operand,
-    value: Option<u64>
+    value: Option<i64>
 }
 
-fn execute(id: &str, graph: &mut Graph) -> Option<u64> {
+fn execute(id: &str, graph: &mut Graph) -> Option<i64> {
     let mut reactive_stack: Vec<String> = Vec::new();
     if graph.get(id).unwrap().value.is_some() {
         return graph.get(id).unwrap().value;
@@ -69,7 +90,7 @@ fn parse_input(input: &str) -> Graph {
         let (id, expr) = line.split_once(":").unwrap();
         if expr.len() <= 8 {
             // Value
-            let value = expr[1..].parse::<u64>().unwrap();
+            let value = expr[1..].parse::<i64>().unwrap();
             graph.insert(id.to_string(), Reactive { id: id.to_string(), 
                                                          lhs: "NONE".to_string(), 
                                                          rhs: "NONE".to_string(), 
@@ -105,7 +126,6 @@ fn find_humn_stack(graph: &Graph) -> Vec<String> {
     v.push("root".to_string());
     loop {
         let current = v.pop().unwrap();
-        println!("Current {:?}", &current);
         if current == "humn" {
             v.push(current.clone());
             break;
@@ -130,6 +150,32 @@ fn find_humn_stack(graph: &Graph) -> Vec<String> {
     v
 }
 
+fn climb_stack(stack: Vec<String>, graph: &Graph) -> i64 {
+    let root = graph.get("root").unwrap();
+    let mut value = if stack.contains(&root.lhs) {
+        graph.get(&root.rhs).unwrap().value.unwrap()
+    } else {
+        graph.get(&root.lhs).unwrap().value.unwrap()
+    };
+    for id in stack.iter() {
+        if id == "root" {
+            continue;
+        }
+        if id == "humn" {
+            break;
+        }
+
+        let reactive = graph.get(id).unwrap();
+        if stack.contains(&reactive.lhs) {
+            // value  o-1 rhs= lhs
+            value = left_inv(value, graph.get(&reactive.rhs).unwrap().value.unwrap(), reactive.operand);
+        } else {
+            value = right_inv(value, graph.get(&reactive.lhs).unwrap().value.unwrap(), reactive.operand);
+        }
+    }
+    value
+}
+
 type Graph = HashMap<String, Reactive>;
 
 pub fn task1(input: &str) -> String {
@@ -142,7 +188,9 @@ pub fn task1(input: &str) -> String {
 pub fn task2(input: &str) -> String {
     let mut graph: Graph = parse_input(input);
     execute("root", &mut graph).unwrap().to_string();
-    println!("{:?}", find_humn_stack(&graph));
+    let humn_stack = find_humn_stack(&graph);
+    let val = climb_stack(humn_stack, &graph);
+    println!("{:?}", val);
     "AAA".to_string()
 }
 
