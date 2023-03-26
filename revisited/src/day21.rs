@@ -17,6 +17,50 @@ struct Reactive {
     value: Option<i32>
 }
 
+fn execute(id: &str, graph: &mut Graph) -> Option<i32> {
+    let mut reactive_stack: Vec<String> = Vec::new();
+    if graph.get(id).unwrap().value.is_some() {
+        return graph.get(id).unwrap().value;
+    }
+    reactive_stack.push(id.to_string());
+    let mut react_id;
+    let mut reactive;
+    while ! reactive_stack.is_empty() {
+        react_id = reactive_stack.pop().unwrap();
+        reactive = graph.get(&react_id).unwrap();
+        let lhs_react = graph.get(&reactive.lhs).unwrap();
+        let mut lhs = match lhs_react.value {
+            Some(v) => v,
+            None => {
+                reactive_stack.push(react_id);
+                reactive_stack.push(reactive.lhs.clone());
+                continue;
+            }
+        };
+
+        let rhs_react = graph.get(&reactive.rhs).unwrap();
+        let mut rhs = match rhs_react.value {
+            Some(v) => v,
+            None => {
+                reactive_stack.push(react_id);
+                reactive_stack.push(reactive.rhs.clone());
+                continue;
+            }
+        };
+        let mut mut_reactive = graph.get_mut(&react_id).unwrap();
+        mut_reactive.value = match mut_reactive.operand {
+            Operand::ADD => Some(lhs + rhs),
+            Operand::SUB => Some(lhs - rhs),
+            Operand::MUL => Some(lhs * rhs),
+            Operand::DIV => Some(lhs / rhs),
+        };
+        
+    }
+
+
+    return graph.get(id).unwrap().value;
+}
+
 
 
 fn parse_input(input: &str) -> Graph {
@@ -57,9 +101,7 @@ type Graph = HashMap<String, Reactive>;
 
 pub fn task1(input: &str) -> String {
     let mut graph: Graph = parse_input(input);
-    println!("{:?}", graph);
-
-    "AAA".to_string()
+    execute("root", &mut graph).unwrap().to_string()
 }
 
 
