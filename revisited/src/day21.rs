@@ -14,10 +14,10 @@ struct Reactive {
     lhs: String,
     rhs: String,
     operand: Operand,
-    value: Option<i32>
+    value: Option<u64>
 }
 
-fn execute(id: &str, graph: &mut Graph) -> Option<i32> {
+fn execute(id: &str, graph: &mut Graph) -> Option<u64> {
     let mut reactive_stack: Vec<String> = Vec::new();
     if graph.get(id).unwrap().value.is_some() {
         return graph.get(id).unwrap().value;
@@ -67,9 +67,9 @@ fn parse_input(input: &str) -> Graph {
     let mut graph: Graph = HashMap::new();
     for line in input.lines() {
         let (id, expr) = line.split_once(":").unwrap();
-        if expr.len() <= 3 {
+        if expr.len() <= 8 {
             // Value
-            let value = expr[1..].parse::<i32>().unwrap();
+            let value = expr[1..].parse::<u64>().unwrap();
             graph.insert(id.to_string(), Reactive { id: id.to_string(), 
                                                          lhs: "NONE".to_string(), 
                                                          rhs: "NONE".to_string(), 
