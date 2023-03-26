@@ -97,6 +97,39 @@ fn parse_input(input: &str) -> Graph {
     graph
 }
 
+
+fn find_humn_stack(graph: &Graph) -> Vec<String> {
+    let mut v = Vec::new();
+    let mut has_checked_left: HashMap<String, bool> = HashMap::new();
+    let mut has_checked_right: HashMap<String, bool> = HashMap::new();
+    v.push("root".to_string());
+    loop {
+        let current = v.pop().unwrap();
+        println!("Current {:?}", &current);
+        if current == "humn" {
+            v.push(current.clone());
+            break;
+        }
+        if current == "NONE" {
+            continue;
+        }
+        if has_checked_left.get(&current).is_none() || !has_checked_left.get(&current).unwrap() {
+            v.push(current.clone());
+            v.push(graph.get(&current).unwrap().lhs.to_string());
+            has_checked_left.insert(current.clone(), true);
+            continue;
+        }
+        if has_checked_right.get(&current).is_none() || !has_checked_right.get(&current).unwrap() {
+            v.push(current.clone());
+            v.push(graph.get(&current).unwrap().rhs.to_string());
+            has_checked_right.insert(current.clone(), true);
+            continue;
+        }
+    }
+
+    v
+}
+
 type Graph = HashMap<String, Reactive>;
 
 pub fn task1(input: &str) -> String {
@@ -107,6 +140,9 @@ pub fn task1(input: &str) -> String {
 
 
 pub fn task2(input: &str) -> String {
+    let mut graph: Graph = parse_input(input);
+    execute("root", &mut graph).unwrap().to_string();
+    println!("{:?}", find_humn_stack(&graph));
     "AAA".to_string()
 }
 
