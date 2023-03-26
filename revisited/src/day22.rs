@@ -110,28 +110,27 @@ impl Agent {
             };
             let x = proposal.x;
             let y = proposal.y;
-            if y == -1 {
+            if y == -1 && x < 100 {
                 // On top
-                if x < 100 {
-                    proposal.x = 0;
-                    proposal.y = x-50+150;
-                    if map.obstacles.contains(&proposal) {
-                        break;
-                    }
-                    self.pos = proposal;
-                    self.direction = Direction::EAST;
-                } else {
-                    proposal.x = x-100;
-                    proposal.y = 199;
-                    if map.obstacles.contains(&proposal) {
-                        break;
-                    }
-                    self.pos = proposal;
-                    self.direction = Direction::NORHT;
+                proposal.x = 0;
+                proposal.y = x-50+150;
+                if map.obstacles.contains(&proposal) {
+                    break;
                 }
+                self.pos = proposal;
+                self.direction = Direction::EAST;
+            } else if y == -1 && x >= 100{
+                proposal.x = x-100;
+                proposal.y = 199;
+                if map.obstacles.contains(&proposal) {
+                    break;
+                }
+                self.pos = proposal;
+                self.direction = Direction::NORHT;
+            
             } else if x == 150 {
                 proposal.x = 99;
-                proposal.y = y+100;
+                proposal.y = -y+100+50;
                 if map.obstacles.contains(&proposal) {
                     break;
                 }
@@ -155,7 +154,7 @@ impl Agent {
                 self.direction = Direction::NORHT;
             } else if x == 100 && 99 < y && y < 150 {
                 proposal.x = 149;
-                proposal.y = y-100;
+                proposal.y = -(y-100-50);
                 if map.obstacles.contains(&proposal) {
                     break;
                 }
@@ -193,9 +192,9 @@ impl Agent {
                 }
                 self.pos = proposal;
                 self.direction = Direction::SOUTH;
-            } else if x == 0 && 99 < y && y < 150 {
+            } else if x == -1 && 99 < y && y < 150 {
                 proposal.x = 50;
-                proposal.y = y-100;
+                proposal.y = -(y-100-50);
                 if map.obstacles.contains(&proposal) {
                     break;
                 }
@@ -217,24 +216,30 @@ impl Agent {
                 }
                 self.pos = proposal;
                 self.direction = Direction::SOUTH;
-            } else if x == 49 && x < 50 {
+            } else if x == 49 && y < 50 {
                 proposal.x = 0;
-                proposal.y = y+100;
+                proposal.y = -y+100+50;
                 if map.obstacles.contains(&proposal) {
                     break;
                 }
                 self.pos = proposal;
                 self.direction = Direction::EAST;
+            } else {
+                if map.obstacles.contains(&proposal) {
+                    break;
+                }
+                self.pos = proposal;
             }
 
 
         }
-    }    
+    }  
+    
 
     fn follow(& mut self, instruction: Instruction, map: &Map) {
         match instruction {
             Instruction::TURN(rot) => self.turn(rot),
-            Instruction::GO(steps) => self.step(steps, map),
+            Instruction::GO(steps) => self.step2(steps, map),
         };
     }
 }
@@ -324,8 +329,9 @@ pub fn task1(input: &str) -> String {
 
     for instruction in instructions.iter() {
         agent.follow(*instruction, &map);
+        println!("aget: {:?}, istructio: {:?}", &agent, instruction);
     }
-    
+    println!("{:?}", &agent);    
     score(&agent).to_string()
 }
 
