@@ -1,4 +1,4 @@
-use std::path::Component;
+use std::{path::Component, cmp::max};
 
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -10,18 +10,28 @@ enum Move {
     GEODE
 }
 
-fn create_move_iter() -> impl Iterator<Item = Move>{
-    [Move::WAIT, Move::CLAY, Move::ORE, Move::OBSIDIAN, Move::GEODE].into_iter()
+impl Move {
+    fn forbidden(&self, inventory: &Collection, prices: &Prices) -> bool {
+        match self {
+            Move::WAIT => true,
+            Move::ORE => inventory.ore >= prices.ore.ore,
+            Move::CLAY => inventory.ore >= prices.clay.ore,
+            Move::OBSIDIAN => inventory.ore >= prices.obsidian.ore && inventory.clay >= prices.obsidian.clay,
+            Move::GEODE => inventory.ore >= prices.geode.ore && inventory.obsidian >= prices.geode.obsidian,
+        }
+    }
 }
 
-fn create_move_iter_from(m: Move) -> impl Iterator<Item = Move> {
-    create_move_iter().skip( match m {
-        Move::WAIT => 1,
-        Move::ORE => 2,
-        Move::CLAY => 3,
-        Move::OBSIDIAN => 4,
-        Move::GEODE => 5,  
-    })
+fn create_move_iter_from(m: Option<Move>) -> impl Iterator<Item = Move> {
+    [Move::WAIT, Move::CLAY, Move::ORE, Move::OBSIDIAN, Move::GEODE].into_iter()
+        .skip( match m {
+            None => 0,
+            Some(Move::WAIT) => 1,
+            Some(Move::ORE) => 2,
+            Some(Move::CLAY) => 3,
+            Some(Move::OBSIDIAN) => 4,
+            Some(Move::GEODE) => 5,  
+        })
 }
 
 
@@ -97,11 +107,42 @@ fn parse_prices(input: &str) -> Vec<Prices> {
 pub fn task1(input: &str) -> String {
     let prices = parse_prices(input);
     for p in prices.iter() {
-        let mut inventory = Collection {ore: 1, clay: 0, obsidian: 0, geode: 0};
+        let mut inventory = Collection {ore: 0, clay: 0, obsidian: 0, geode: 0};
         let mut robots = Collection {ore: 1, clay: 0, obsidian: 0, geode: 0};
         let mut moves = Vec::<Move>::new();
-        
-        println!("{:?}", p);
+        let mut update_success = false;
+        let mut move_iter = create_move_iter_from(None);
+        let mut best_score = 0;
+        loop {
+            update_success  = false;
+            for m in move_iter {
+                if m.forbidden(&inventory, p) {
+                    continue;
+                }
+                if moves.len() == 24 {
+                    update_success = false;
+                    best_score = max(best_score, inventory.geode);
+                    break;
+                }
+                
+                update_success = true;
+                moves.push(m);
+                update(m, &mut inventory, &mut robots, &p);
+                move_iter = create_move_iter_from(None);
+                break;
+            }
+
+            if !update_success {
+                let prev_move = match moves.pop() {
+                    Some(m) => m,
+                    None => break
+                };
+                rollback(prev_move, &mut inventory, &mut robots, p);
+                move_iter = create_move_iter_from(Some(prev_move));
+            }
+
+        }
+        println!("{:?}", best_score);
     }
     "AAA".to_string()
 }
