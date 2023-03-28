@@ -1,4 +1,4 @@
-use std::{path::Component, cmp::max};
+use std::{cmp::max};
 
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -13,16 +13,16 @@ enum Move {
 impl Move {
     fn forbidden(&self, inventory: &Collection, prices: &Prices) -> bool {
         match self {
-            Move::WAIT => true,
-            Move::ORE => inventory.ore >= prices.ore.ore,
-            Move::CLAY => inventory.ore >= prices.clay.ore,
-            Move::OBSIDIAN => inventory.ore >= prices.obsidian.ore && inventory.clay >= prices.obsidian.clay,
-            Move::GEODE => inventory.ore >= prices.geode.ore && inventory.obsidian >= prices.geode.obsidian,
+            Move::WAIT => false,
+            Move::ORE => inventory.ore < prices.ore.ore,
+            Move::CLAY => inventory.ore < prices.clay.ore,
+            Move::OBSIDIAN => inventory.ore < prices.obsidian.ore || inventory.clay < prices.obsidian.clay,
+            Move::GEODE => inventory.ore < prices.geode.ore || inventory.obsidian < prices.geode.obsidian,
         }
     }
 }
 
-fn create_move_iter_from(m: Option<Move>) -> impl Iterator<Item = Move> {
+fn create_move_iter_from(m: Option<Move>) -> impl Iterator<Item = Move> + Clone {
     [Move::WAIT, Move::CLAY, Move::ORE, Move::OBSIDIAN, Move::GEODE].into_iter()
         .skip( match m {
             None => 0,
@@ -52,10 +52,59 @@ struct Prices {
 }
 
 fn update(m: Move, inventory: &mut Collection, robots: &mut Collection, prices: &Prices) {
-
+    inventory.ore += robots.ore;
+    inventory.clay += robots.clay;
+    inventory.obsidian += robots.obsidian;
+    inventory.geode += robots.geode;
+    match m {
+        Move::WAIT => (), 
+        Move::ORE => {
+            robots.ore += 1;
+            inventory.ore -= prices.ore.ore; 
+        },
+        Move::CLAY => {
+            robots.clay += 1;
+            inventory.ore -= prices.clay.ore; 
+        },
+        Move::OBSIDIAN => {
+            robots.obsidian += 1;
+            inventory.ore -= prices.obsidian.ore; 
+            inventory.clay -= prices.obsidian.clay; 
+        },
+        Move::GEODE => {
+            robots.geode += 1;
+            inventory.ore -= prices.geode.ore; 
+            inventory.obsidian -= prices.geode.obsidian; 
+        },
+    }
 }
 
 fn rollback(m: Move, inventory: &mut Collection, robots: &mut Collection, prices: &Prices) {
+    match m {
+        Move::WAIT => (), 
+        Move::ORE => {
+            robots.ore -= 1;
+            inventory.ore += prices.ore.ore; 
+        },
+        Move::CLAY => {
+            robots.clay -= 1;
+            inventory.ore += prices.clay.ore; 
+        },
+        Move::OBSIDIAN => {
+            robots.obsidian -= 1;
+            inventory.ore += prices.obsidian.ore; 
+            inventory.clay += prices.obsidian.clay; 
+        },
+        Move::GEODE => {
+            robots.geode -= 1;
+            inventory.ore += prices.geode.ore; 
+            inventory.obsidian += prices.geode.obsidian; 
+        },
+    }
+    inventory.ore -= robots.ore;
+    inventory.clay -= robots.clay;
+    inventory.obsidian -= robots.obsidian;
+    inventory.geode -= robots.geode;
     
 }
 
@@ -115,7 +164,9 @@ pub fn task1(input: &str) -> String {
         let mut best_score = 0;
         loop {
             update_success  = false;
-            for m in move_iter {
+            //println!("{:?}",moves.len());
+            for m in move_iter.clone() {
+                //println!("Move; {:?}", m);
                 if m.forbidden(&inventory, p) {
                     continue;
                 }
