@@ -23,7 +23,7 @@ impl Move {
 }
 
 fn create_move_iter_from(m: Option<Move>) -> impl Iterator<Item = Move> + Clone {
-    [Move::WAIT, Move::CLAY, Move::ORE, Move::OBSIDIAN, Move::GEODE].into_iter()
+    [Move::WAIT, Move::ORE, Move::CLAY, Move::OBSIDIAN, Move::GEODE].into_iter()
         .skip( match m {
             None => 0,
             Some(Move::WAIT) => 1,
@@ -162,15 +162,16 @@ pub fn task1(input: &str) -> String {
         let mut update_success = false;
         let mut move_iter = create_move_iter_from(None);
         let mut best_score = 0;
+        println!("Prices {:?}", p);
         loop {
             update_success  = false;
-            //println!("{:?}",moves.len());
+            //println!("Inventory {:?} \t robots: {:?} Moves: {:?}", &inventory, &robots, &moves);
             for m in move_iter.clone() {
                 //println!("Move; {:?}", m);
                 if m.forbidden(&inventory, p) {
                     continue;
                 }
-                if moves.len() == 24 {
+                if moves.len() == 18 {
                     update_success = false;
                     best_score = max(best_score, inventory.geode);
                     break;
@@ -193,7 +194,8 @@ pub fn task1(input: &str) -> String {
             }
 
         }
-        println!("{:?}", best_score);
+        println!("Best score {:?}", best_score);
+        
     }
     "AAA".to_string()
 }
