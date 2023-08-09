@@ -418,7 +418,6 @@ pub fn task1(input: &str) -> String {
     let map = parse_input(input, height, width);
     //print_time_slice(&map);
     let block = generate_block(&map);
-    //println!("############");
     //print_time_block(&block);
     travers(&block)
 }
@@ -429,7 +428,6 @@ pub fn task2(input: &str) -> String {
     let map = parse_input(input, height, width);
     //print_time_slice(&map);
     let block = generate_block(&map);
-    //println!("############");
     //print_time_block(&block);
     travers2(&block)
 }
