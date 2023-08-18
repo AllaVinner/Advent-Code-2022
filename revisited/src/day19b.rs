@@ -91,18 +91,7 @@ fn max_geom(
             num_geo + rob_geo, 
             rob_ore, rob_clay, rob_obs, rob_geo + 1);
     }
-    if rob_obs < machine_cost.geode.obsidian {
-        if num_ore >= machine_cost.obsidian.ore && num_clay >= machine_cost.obsidian.clay {
-            //println!("buying obs");
-            return max_geom(
-                machine_cost, remaining_time -1, 
-                num_ore - machine_cost.obsidian.ore + rob_ore, 
-                num_clay - machine_cost.obsidian.clay + rob_clay, 
-                num_obs + rob_obs, 
-                num_geo + rob_geo, 
-                rob_ore, rob_clay, rob_obs + 1, rob_geo);
-        }
-    }
+
     let mut best;
     let mut candidate;
     //println!("wating");
@@ -115,6 +104,23 @@ fn max_geom(
         rob_ore, 
         rob_clay, rob_obs, rob_geo
     );
+
+    if rob_obs < machine_cost.geode.obsidian {
+        if num_ore >= machine_cost.obsidian.ore && num_clay >= machine_cost.obsidian.clay {
+            //println!("buying obs");
+            candidate = max_geom(
+                machine_cost, remaining_time -1, 
+                num_ore - machine_cost.obsidian.ore + rob_ore, 
+                num_clay - machine_cost.obsidian.clay + rob_clay, 
+                num_obs + rob_obs, 
+                num_geo + rob_geo, 
+                rob_ore, rob_clay, rob_obs + 1, rob_geo
+            );
+            if candidate > best {
+                best = candidate;
+            }   
+        } 
+    }
 
     if rob_clay < machine_cost.obsidian.clay && num_ore >= machine_cost.clay.ore {
         //println!("buying clay");
@@ -169,13 +175,31 @@ pub fn task1(input: &str) -> String {
         );
         val += (i+1) as u32*best;
     }
-    
-    println!("{}", val);
-    "too".to_string()
+
+    val.to_string()
 }
 
 
 
 pub fn task2(input: &str) -> String {
-    "aa".to_string()
+    let blueprints = parse_prices(input);
+    let mut val = 1;
+    for blueprint in blueprints.iter().take(3) {
+        let best = max_geom(
+            blueprint,
+            32,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0
+        );
+        println!("{}", best);
+        val = val*best;
+    }
+
+    val.to_string()
 }
