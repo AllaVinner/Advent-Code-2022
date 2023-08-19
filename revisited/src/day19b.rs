@@ -65,14 +65,14 @@ fn parse_prices(input: &str) -> Vec<MachinePrices> {
 fn max_geom(
     machine_cost: &MachinePrices,
     remaining_time: u32, 
-    num_ore: u32, 
-    num_clay: u32, 
-    num_obs: u32, 
-    num_geo: u32,
-    rob_ore: u32, 
-    rob_clay: u32, 
-    rob_obs: u32, 
-    rob_geo: u32,
+    mut num_ore: u32, 
+    mut num_clay: u32, 
+    mut num_obs: u32, 
+    mut num_geo: u32,
+    mut rob_ore: u32, 
+    mut rob_clay: u32, 
+    mut rob_obs: u32, 
+    mut rob_geo: u32,
     set: &mut HashMap< (u32, u32, u32, u32, u32, u32, u32, u32, u32), u32>
 ) -> u32 {
     if remaining_time == 0 {
@@ -80,17 +80,43 @@ fn max_geom(
         return num_geo;
     }
 
+    let max_core = *vec![machine_cost.ore.ore, machine_cost.clay.ore, machine_cost.obsidian.ore, machine_cost.geode.ore].iter().max().unwrap();
+
+    if rob_ore > max_core {
+        rob_ore = max_core;
+    }
+
+    if rob_clay > machine_cost.obsidian.clay {
+        rob_clay = machine_cost.obsidian.clay;
+    }
+
+    if rob_obs > machine_cost.geode.obsidian {
+        rob_obs = machine_cost.geode.obsidian;
+    }
+
+    if num_ore > remaining_time*max_core - rob_ore*(remaining_time -1) {
+        num_ore = remaining_time*max_core - rob_ore*(remaining_time -1);
+    }
+
+    if num_clay > remaining_time*machine_cost.obsidian.clay - rob_clay*(remaining_time -1) {
+        num_clay = remaining_time*machine_cost.obsidian.clay - rob_clay*(remaining_time -1);
+    }
+
+    if num_obs > remaining_time*machine_cost.geode.obsidian - rob_obs*(remaining_time -1) {
+        num_obs = remaining_time*machine_cost.geode.obsidian - rob_obs*(remaining_time -1);
+    }
+
     let hashable: (u32, u32, u32, u32, u32, u32, u32, u32, u32) = (remaining_time, 
         num_ore, num_clay, num_obs, num_geo, 
         rob_ore, rob_clay, rob_obs, rob_geo
     );
-    /*
+    
     match set.get(&hashable) {
         Some(best) => return *best,
         None => ()
     }
     
-    */
+    
     
     if num_ore >= machine_cost.geode.ore && num_obs >= machine_cost.geode.obsidian {
         //println!("buying geo");
@@ -118,7 +144,7 @@ fn max_geom(
         rob_clay, rob_obs, rob_geo,
         set
     );
-
+  
     if rob_obs < machine_cost.geode.obsidian {
         if num_ore >= machine_cost.obsidian.ore && num_clay >= machine_cost.obsidian.clay {
             //println!("buying obs");
@@ -136,6 +162,7 @@ fn max_geom(
             }   
         } 
     }
+    
 
     if rob_clay < machine_cost.obsidian.clay && num_ore >= machine_cost.clay.ore {
         //println!("buying clay");
@@ -155,7 +182,8 @@ fn max_geom(
 
     if (rob_ore < machine_cost.ore.ore || 
         rob_ore < machine_cost.clay.ore || 
-        rob_ore < machine_cost.obsidian.ore) && 
+        rob_ore < machine_cost.obsidian.ore || 
+        rob_ore < machine_cost.geode.ore) && 
         num_ore >= machine_cost.ore.ore {
         //println!("buying ore");
         candidate = max_geom(
@@ -172,7 +200,7 @@ fn max_geom(
         }
     }
 
-    //set.insert(hashable, best);
+    set.insert(hashable, best);
     return best;
 }
 
