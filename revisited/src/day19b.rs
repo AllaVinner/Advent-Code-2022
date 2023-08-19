@@ -1,6 +1,4 @@
-
-
-
+use std::collections::HashMap;
 #[derive(Debug, PartialEq, Clone, Copy)]
 struct Collection {
     ore: u32,
@@ -74,12 +72,25 @@ fn max_geom(
     rob_ore: u32, 
     rob_clay: u32, 
     rob_obs: u32, 
-    rob_geo: u32
+    rob_geo: u32,
+    set: &mut HashMap< (u32, u32, u32, u32, u32, u32, u32, u32, u32), u32>
 ) -> u32 {
     if remaining_time == 0 {
         //println!("At time 0");
         return num_geo;
     }
+
+    let hashable: (u32, u32, u32, u32, u32, u32, u32, u32, u32) = (remaining_time, 
+        num_ore, num_clay, num_obs, num_geo, 
+        rob_ore, rob_clay, rob_obs, rob_geo
+    );
+    /*
+    match set.get(&hashable) {
+        Some(best) => return *best,
+        None => ()
+    }
+    
+    */
     
     if num_ore >= machine_cost.geode.ore && num_obs >= machine_cost.geode.obsidian {
         //println!("buying geo");
@@ -89,7 +100,9 @@ fn max_geom(
             num_clay +rob_clay, 
             num_obs - machine_cost.geode.obsidian + rob_obs, 
             num_geo + rob_geo, 
-            rob_ore, rob_clay, rob_obs, rob_geo + 1);
+            rob_ore, rob_clay, rob_obs, rob_geo + 1,
+            set
+        );
     }
 
     let mut best;
@@ -102,7 +115,8 @@ fn max_geom(
         num_obs + rob_obs, 
         num_geo + rob_geo, 
         rob_ore, 
-        rob_clay, rob_obs, rob_geo
+        rob_clay, rob_obs, rob_geo,
+        set
     );
 
     if rob_obs < machine_cost.geode.obsidian {
@@ -114,7 +128,8 @@ fn max_geom(
                 num_clay - machine_cost.obsidian.clay + rob_clay, 
                 num_obs + rob_obs, 
                 num_geo + rob_geo, 
-                rob_ore, rob_clay, rob_obs + 1, rob_geo
+                rob_ore, rob_clay, rob_obs + 1, rob_geo,
+                set
             );
             if candidate > best {
                 best = candidate;
@@ -130,7 +145,8 @@ fn max_geom(
             num_clay + rob_clay, 
             num_obs + rob_obs, 
             num_geo + rob_geo, 
-            rob_ore, rob_clay + 1, rob_obs, rob_geo
+            rob_ore, rob_clay + 1, rob_obs, rob_geo,
+            set
         );
         if candidate > best {
             best = candidate;
@@ -148,12 +164,15 @@ fn max_geom(
             num_clay + rob_clay, 
             num_obs + rob_obs, 
             num_geo + rob_geo, 
-            rob_ore + 1, rob_clay, rob_obs, rob_geo
+            rob_ore + 1, rob_clay, rob_obs, rob_geo,
+            set
         );
         if candidate > best {
             best = candidate;
         }
     }
+
+    //set.insert(hashable, best);
     return best;
 }
 
@@ -161,6 +180,7 @@ pub fn task1(input: &str) -> String {
     let blueprints = parse_prices(input);
     let mut val = 0;
     for (i, blueprint) in blueprints.iter().enumerate() {
+        let mut set = HashMap::new();
         let best = max_geom(
             blueprint,
             24,
@@ -171,7 +191,8 @@ pub fn task1(input: &str) -> String {
             1,
             0,
             0,
-            0
+            0,
+            &mut set
         );
         val += (i+1) as u32*best;
     }
@@ -185,6 +206,7 @@ pub fn task2(input: &str) -> String {
     let blueprints = parse_prices(input);
     let mut val = 1;
     for blueprint in blueprints.iter().take(3) {
+        let mut set = HashMap::new();
         let best = max_geom(
             blueprint,
             32,
@@ -195,7 +217,8 @@ pub fn task2(input: &str) -> String {
             1,
             0,
             0,
-            0
+            0,
+            &mut set
         );
         println!("{}", best);
         val = val*best;
