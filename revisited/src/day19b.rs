@@ -117,7 +117,7 @@ fn max_geom(
     }
     
     
-    
+    /*
     if num_ore >= machine_cost.geode.ore && num_obs >= machine_cost.geode.obsidian {
         //println!("buying geo");
         return max_geom(
@@ -130,6 +130,8 @@ fn max_geom(
             set
         );
     }
+    */
+    
 
     let mut best;
     let mut candidate;
@@ -144,6 +146,22 @@ fn max_geom(
         rob_clay, rob_obs, rob_geo,
         set
     );
+
+    if num_ore >= machine_cost.geode.ore && num_obs >= machine_cost.geode.obsidian {
+        //println!("buying geo");
+        candidate =  max_geom(
+            machine_cost, remaining_time -1, 
+            num_ore - machine_cost.geode.ore + rob_ore, 
+            num_clay +rob_clay, 
+            num_obs - machine_cost.geode.obsidian + rob_obs, 
+            num_geo + rob_geo, 
+            rob_ore, rob_clay, rob_obs, rob_geo + 1,
+            set
+        );
+        if candidate > best {
+            best = candidate;
+        }   
+    }
   
     if rob_obs < machine_cost.geode.obsidian {
         if num_ore >= machine_cost.obsidian.ore && num_clay >= machine_cost.obsidian.clay {

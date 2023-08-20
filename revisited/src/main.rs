@@ -1,6 +1,6 @@
 use std::fs;
-use crate::day19b::{task1, task2};
-mod day19b;
+use crate::day19c::{task1, task2};
+mod day19c;
 
 fn main() {
     let file = fs::read_to_string("./data/19.txt").unwrap().replace("\r", "");
